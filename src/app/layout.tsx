@@ -1,3 +1,4 @@
+import Header from '@/components/Header';
 import './globals.css';
 import type { Metadata } from 'next';
 import { Open_Sans } from 'next/font/google';
@@ -15,8 +16,17 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body className={openSans.className}>{children}</body>
+    <html lang="en" className={openSans.className}>
+      <body className="bg-gray-100">
+        <section className="fixed top-0 w-full bg-white flex justify-center items-center border-b-[2px] border-zinc-200">
+          <Header />
+        </section>
+        <main className="w-full flex justify-center items-center">
+          <section className=" w-full max-w-screen-2xl text-5xl flex justify-between p-3 px-5 pt-32">
+            {children}
+          </section>
+        </main>
+      </body>
     </html>
   );
 }
