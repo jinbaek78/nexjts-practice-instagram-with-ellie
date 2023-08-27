@@ -11,6 +11,7 @@ import {
 import { usePathname } from 'next/navigation';
 import ColorButton from './ui/ColorButton';
 import { useSession, signIn, signOut } from 'next-auth/react';
+import Avatar from './ui/Avatar';
 const menu = [
   {
     href: '/',
@@ -32,6 +33,7 @@ const menu = [
 export default function Navbar() {
   const pathname = usePathname();
   const { data: session } = useSession();
+  const user = session?.user;
   console.log('NavBar: session: ', session);
 
   return (
@@ -48,6 +50,13 @@ export default function Navbar() {
               </Link>
             </li>
           ))}
+          {user && (
+            <li>
+              <Link href={`/user/${user.username}`}>
+                <Avatar image={user.image} />
+              </Link>
+            </li>
+          )}
           {session ? (
             <ColorButton
               text="Sign out"
