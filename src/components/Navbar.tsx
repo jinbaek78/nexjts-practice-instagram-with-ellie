@@ -11,6 +11,10 @@ import {
 import { usePathname } from 'next/navigation';
 import ColorButton from './ui/ColorButton';
 import { useSession, signIn, signOut } from 'next-auth/react';
+import Avatar from './ui/Avatar';
+import { useRouter } from 'next/navigation';
+import { sessionWithRedirectTo } from '@/app/api/auth/[...nextauth]/route';
+
 const menu = [
   {
     href: '/',
@@ -31,6 +35,7 @@ const menu = [
 
 export default function Navbar() {
   const pathname = usePathname();
+  const router = useRouter();
   const { data: session } = useSession();
   console.log('NavBar: session: ', session);
 
@@ -48,6 +53,15 @@ export default function Navbar() {
               </Link>
             </li>
           ))}
+          {session && (
+            <Avatar
+              src={session.user?.image!}
+              redirectTo={
+                (session as sessionWithRedirectTo)?.user?.redirectTo || ''
+              }
+              width={40}
+            />
+          )}
           {session ? (
             <ColorButton
               text="Sign out"
