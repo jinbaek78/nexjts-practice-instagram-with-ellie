@@ -13,7 +13,6 @@ type Props = {
 export default async function SignInPage({
   searchParams: { callbackUrl },
 }: Props) {
-  console.log('SignInPage: callbackUrl: ', callbackUrl);
   const session = await getServerSession(authOptions);
 
   if (session) {
@@ -24,7 +23,7 @@ export default async function SignInPage({
 
   return (
     <section className="flex justify-center mt-24">
-      <Signin providers={providers} callbackUrl={callbackUrl ?? '/'} />;
+      <Signin providers={providers} callbackUrl={callbackUrl ?? '/'} />
     </section>
   );
 }

@@ -1,3 +1,4 @@
+import { createIfNotExists, getAllUsers } from '@/sanity/sanity';
 import NextAuth from 'next-auth';
 import { NextAuthOptions } from 'next-auth';
 import GoogleProvider from 'next-auth/providers/google';
@@ -10,6 +11,17 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   callbacks: {
+    async signIn({ user }) {
+      await createIfNotExists(user);
+      return true;
+      // const isAllowedToSignIn = true
+      // if (isAllowedToSignIn) {
+      //   return true
+      // } else {
+      //   // Return false to display a default error message
+      //   return false
+      // }
+    },
     async session({ session }) {
       const user = session?.user;
       if (user) {

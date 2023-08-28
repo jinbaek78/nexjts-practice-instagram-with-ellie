@@ -2,7 +2,7 @@ import Navbar from '@/components/Navbar';
 import './globals.css';
 import type { Metadata } from 'next';
 import { Open_Sans } from 'next/font/google';
-import AuthContext from '@/components/context/AuthContext';
+import AuthContext from '@/context/AuthContext';
 
 const openSans = Open_Sans({ subsets: ['latin'] });
 
