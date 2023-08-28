@@ -20,11 +20,13 @@ export default async function SignInPage({
     redirect('/');
   }
 
+  const res = await getProviders();
+  console.log('SignInPage res: ', res);
   const providers = (await getProviders()) ?? {};
 
   return (
     <section className="flex justify-center mt-24">
-      <Signin providers={providers} callbackUrl={callbackUrl ?? '/'} />;
+      <Signin providers={providers} callbackUrl={callbackUrl ?? '/'} />
     </section>
   );
 }
