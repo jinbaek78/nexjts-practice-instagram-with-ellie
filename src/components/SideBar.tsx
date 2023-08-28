@@ -5,9 +5,7 @@ type Props = {
   user: User;
 };
 
-export default function SideBar({
-  user: { email, name, username, image },
-}: Props) {
+export default function SideBar({ user: { name, username, image } }: Props) {
   return (
     <>
       <div className="flex items-center">
