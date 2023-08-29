@@ -3,6 +3,7 @@ import './globals.css';
 import type { Metadata } from 'next';
 import { Open_Sans } from 'next/font/google';
 import AuthContext from '@/context/AuthContext';
+import SwrContext from '@/context/SwrContext';
 
 const openSans = Open_Sans({ subsets: ['latin'] });
 
@@ -18,12 +19,14 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={openSans.className}>
-      <body className="w-full max-w-screen-xl overflow-auto mx-auto">
+      <body className="bg-neutral-50 w-full max-w-screen-xl overflow-auto mx-auto flex flex-col justify-center items-center">
         <AuthContext>
-          <header className="sticky top-0 bg-white z-10 border-b">
-            <Navbar />
-          </header>
-          <main>{children}</main>
+          <SwrContext>
+            <header className="sticky top-0 bg-white z-10 border-b w-full grow">
+              <Navbar />
+            </header>
+            <main className="">{children}</main>
+          </SwrContext>
         </AuthContext>
       </body>
     </html>

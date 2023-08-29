@@ -13,15 +13,12 @@ type Props = {
 export default async function SignInPage({
   searchParams: { callbackUrl },
 }: Props) {
-  console.log('SignInPage: callbackUrl: ', callbackUrl);
   const session = await getServerSession(authOptions);
-
   if (session) {
     redirect('/');
   }
 
   const res = await getProviders();
-  console.log('SignInPage res: ', res);
   const providers = (await getProviders()) ?? {};
 
   return (
