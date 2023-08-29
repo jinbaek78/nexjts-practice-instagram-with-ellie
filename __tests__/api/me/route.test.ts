@@ -1,0 +1,57 @@
+import 'isomorphic-fetch';
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { GET } from '@/app/api/me/route';
+import { getUserByUsername } from '@/service/user';
+import { fakeSession } from '@/tests/mock/session';
+import { getServerSession } from 'next-auth';
+import { NextResponse } from 'next/server';
+import { createMocks } from 'node-mocks-http';
+import { fakeDetailUser } from '@/tests/mock/detailUsers';
+
+jest.mock('next-auth', () => ({ getServerSession: jest.fn() }));
+jest.mock('@/service/user', () => ({ getUserByUsername: jest.fn() }));
+jest.mock('@/app/api/auth/[...nextauth]/route', () => ({
+  authOptions: jest.fn(),
+}));
+jest.mock('next/server', () => ({
+  ...jest.requireActual('next/server'),
+  NextResponse: {
+    json: jest.fn(),
+  },
+}));
+
+describe('/api/me', () => {
+  afterEach(() => {
+    (getUserByUsername as jest.Mock).mockReset();
+    (getServerSession as jest.Mock).mockReset();
+    (NextResponse.json as jest.Mock).mockReset();
+  });
+  it('should not return user data if the session is not available', async () => {
+    (getServerSession as jest.Mock).mockImplementation(async () => undefined);
+    const { req, res } = createMocks({
+      method: 'GET',
+    });
+
+    const result = await GET(req, res);
+
+    expect(getUserByUsername).not.toBeCalled();
+    expect(result.status).toBe(401);
+  });
+
+  it('should return user data if the session is available', async () => {
+    (getUserByUsername as jest.Mock).mockImplementation(
+      async () => fakeDetailUser
+    );
+    (getServerSession as jest.Mock).mockImplementation(async () => fakeSession);
+    const { req, res } = createMocks({
+      method: 'GET',
+    });
+
+    await GET(req, res);
+
+    expect(getUserByUsername).toHaveBeenCalledTimes(1);
+    expect(getUserByUsername).toHaveBeenCalledWith(fakeSession.user.username);
+    expect(NextResponse.json).toHaveBeenCalledTimes(1);
+    expect(NextResponse.json).toHaveBeenCalledWith(fakeDetailUser);
+  });
+});
