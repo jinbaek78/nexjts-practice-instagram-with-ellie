@@ -2,7 +2,7 @@ import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import Avatar from '@/components/ui/Avatar';
 import SideBar from '@/components/SideBar';
-import { fakeSession } from '@/tests/mock/session';
+import { fakeSession } from '@/tests/mock/user/session';
 
 jest.mock('@/components/ui/Avatar');
 

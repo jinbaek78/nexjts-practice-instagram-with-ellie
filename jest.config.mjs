@@ -21,6 +21,7 @@ const config = {
     '^@/app/(.*)$': '<rootDir>/src/app/$1',
     '^@/tests/(.*)$': '<rootDir>/src/tests/$1',
     '^@/service/(.*)$': '<rootDir>/src/service/$1',
+    '^@/util/(.*)$': '<rootDir>/src/util/$1',
     'next-auth/react': '<rootDir>/node_modules/next-auth/react/index',
 
     //

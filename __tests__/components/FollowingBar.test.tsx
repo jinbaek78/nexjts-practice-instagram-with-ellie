@@ -10,7 +10,7 @@ import Avatar from '@/components/ui/Avatar';
 import ScrollableBar from '@/components/ui/ScrollableBar';
 import FollowingBar from '@/components/FollowingBar';
 import { SWRConfig } from 'swr';
-import { fakeDetailUser } from '@/tests/mock/detailUsers';
+import { fakeDetailUser } from '@/tests/mock/user/detailUsers';
 
 jest.mock('react-spinners');
 jest.mock('@/components/ui/Avatar');
