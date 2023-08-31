@@ -9,8 +9,10 @@ const simplePostProjection = `
   "likes": likes[]->username,
   "text": comments[0].comment,
   "comments": count(comments),
+  // "commentsDetail": comments[]{author->{image, username}, comment},
   "id": _id,
   "createdAt": _createdAt
+  
 `;
 
 export async function getFollowingPostsOf(username: string) {
@@ -27,4 +29,18 @@ export async function getFollowingPostsOf(username: string) {
         image: urlFor(post.image),
       }));
     });
+}
+
+export async function getPostCommentsById(postId: string) {
+  return client.fetch(
+    `
+    *[_type == "post" && _id == "${postId}"][0]{
+      comments[]{ 
+        comment, 
+        "username":author->username,
+        "image":author->image
+      }
+    }.comments
+    `
+  );
 }
