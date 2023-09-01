@@ -9,7 +9,6 @@ const simplePostProjection = `
   "likes": likes[]->username,
   "text": comments[0].comment,
   "comments": count(comments),
-  console.log('GET called: user: ', user);
   "id": _id,
   "createdAt": _createdAt
 `;
@@ -18,9 +17,9 @@ export async function getFollowingPostsOf(username: string) {
   return client
     .fetch(
       `*[_type == "post" && author->username == "${username}"
-    || author._ref in *[_type == "user" && username == "${username}"].following[]._ref]
-    | order(_createdAt desc){${simplePostProjection}}
-    `
+  || author._ref in *[_type == "user" && username == "${username}"].following[]._ref] | order(_createdAt desc){
+    ${simplePostProjection}
+  }`
     )
     .then((posts) => {
       return posts.map((post: SimplePost) => ({

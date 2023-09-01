@@ -20,10 +20,24 @@ export async function addUser({ id, username, email, name, image }: OauthUser) {
   });
 }
 
-export async function getUserByUsername(username: string) {
+export async function getUserByUsernameOrName(usernameOrName: string) {
   return client.fetch(
     `
-    *[_type == "user" && username == "${username}"][0]{
+    *[_type == "user" && username == "${usernameOrName}"][0]{
+      ...,
+      "id": _id,
+      following[]->{username, image},
+      followers[]->{username, image},
+      "bookmarks":bookmarks[]->_id
+    }
+    `
+  );
+}
+
+export async function getAllUsers() {
+  return client.fetch(
+    `
+    *[_type == "user"]{
       ...,
       "id": _id,
       following[]->{username, image},

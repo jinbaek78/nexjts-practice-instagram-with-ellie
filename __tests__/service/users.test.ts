@@ -1,5 +1,5 @@
 import { client } from '@/service/sanity';
-import { getUserByUsername } from '@/service/user';
+import { getUserByUsernameOrName } from '@/service/user';
 import { fakeDetailUser } from '@/tests/mock/user/detailUsers';
 import { fakeSession } from '@/tests/mock/user/session';
 
@@ -18,11 +18,11 @@ describe('Users Service', () => {
     (client.fetch as jest.Mock).mockReset();
   });
 
-  describe('getUserByUsername', () => {
+  describe('getUserByUsernameOrName', () => {
     it('should invoke fetch method with correct query', async () => {
       const fetchQuery = `*[_type == "user" && username == "${username}"]`;
 
-      await getUserByUsername(username);
+      await getUserByUsernameOrName(username);
 
       expect(client.fetch).toHaveBeenCalledTimes(1);
       expect((client.fetch as jest.Mock).mock.calls[0][0]).toContain(
