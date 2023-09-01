@@ -1,6 +1,6 @@
-import { getFollowingPostsOf } from '@/service/posts';
+import { getFollowingPostsOf, getPost } from '@/service/posts';
 import { client, urlFor } from '@/service/sanity';
-import { fakeSimplePosts } from '@/tests/mock/post/post';
+import { fakeFullPost, fakeSimplePosts } from '@/tests/mock/post/post';
 import { fakeSession } from '@/tests/mock/user/session';
 
 jest.mock('@/service/sanity', () => ({
@@ -52,8 +52,11 @@ describe('PostService', () => {
         fakeSimplePosts[1].image
       );
       expect(client.fetch).toHaveBeenCalledTimes(1);
+      // expect((client.fetch as jest.Mock).mock.calls[0][0]).toContain(
+      //   `order(_createdAt desc){${simplePostProjection}}`
+      // );
       expect((client.fetch as jest.Mock).mock.calls[0][0]).toContain(
-        `order(_createdAt desc){${simplePostProjection}}`
+        `"comments": count(comments),`
       );
       expect((client.fetch as jest.Mock).mock.calls[0][0]).toContain(
         ` author._ref in *[_type == "user" && username == "${username}"]`
@@ -65,6 +68,27 @@ describe('PostService', () => {
       expect(result).toEqual(
         fakeSimplePosts.map((post) => ({ ...post, image: undefined }))
       );
+    });
+  });
+
+  describe('getPost', () => {
+    const { id } = fakeFullPost;
+    it('should invoke fetch and urlFor method with correct query', async () => {
+      (client.fetch as jest.Mock).mockImplementation(async () => fakeFullPost);
+      const result = await getPost(id);
+
+      expect(urlFor).toHaveBeenCalledTimes(1);
+      expect((urlFor as jest.Mock).mock.calls[0][0]).toBe(fakeFullPost.image);
+
+      expect(client.fetch).toHaveBeenCalledTimes(1);
+      expect((client.fetch as jest.Mock).mock.calls[0][0]).toContain(
+        `*[_type == "post" && _id == "${id}"][0]`
+      );
+      expect((client.fetch as jest.Mock).mock.calls[0][0]).toContain(
+        `comments[]{comment, "username": author->username, "image": author->image}`
+      );
+
+      expect(result).toEqual({ ...fakeFullPost, image: undefined });
     });
   });
 });

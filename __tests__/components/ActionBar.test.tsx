@@ -50,7 +50,30 @@ describe('ActionBar', () => {
         createdAt={createdAt}
       />
     );
-
     expect(screen.getByText(`${likes.length} likes`)).toBeInTheDocument();
+  });
+  it('should display a comment when a text is provided', () => {
+    const { likes, username, text, createdAt } = fakeSimplePostWithOneLikes;
+    render(
+      <ActionBar
+        likes={likes}
+        username={username}
+        text={text}
+        createdAt={createdAt}
+      />
+    );
+
+    expect(screen.getByText(username)).toBeInTheDocument();
+    expect(screen.getByText(text)).toBeInTheDocument();
+  });
+
+  it('should not display a comment when a text is not provided', () => {
+    const { likes, username, text, createdAt } = fakeSimplePostWithOneLikes;
+    render(
+      <ActionBar likes={likes} username={username} createdAt={createdAt} />
+    );
+
+    expect(screen.queryByText(username)).toBeNull();
+    expect(screen.queryByText(text)).toBeNull();
   });
 });

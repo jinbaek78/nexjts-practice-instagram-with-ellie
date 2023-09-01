@@ -13,10 +13,12 @@ import CommentForm from '@/components/CommentForm';
 // import ActionBar from '@/components/ActionBar';
 import { fakeSimplePosts } from '@/tests/mock/post/post';
 import PostListCard from '@/components/PostListCard';
+import PostUserAvatar from '@/components/PostUserAvatar';
 
 jest.mock('@/components/ui/Avatar');
 // jest.mock('next/image', () => ({ Image: jest.fn() }));
 jest.mock('@/components/CommentForm');
+jest.mock('@/components/PostUserAvatar');
 // jest.mock('@/components/ActionBar');
 
 jest.mock(
@@ -37,9 +39,13 @@ describe('PostListCard', () => {
   it('should render correctly', () => {
     render(<PostListCard post={fakeSimplePost} priority={priority} />);
 
-    expect(Avatar).toHaveBeenCalledTimes(1);
-    expect((Avatar as jest.Mock).mock.calls[0][0].image).toBe(userImage);
-    expect(screen.getByText(username)).toBeInTheDocument();
+    expect(PostUserAvatar).toHaveBeenCalledTimes(1);
+    expect((PostUserAvatar as jest.Mock).mock.calls[0][0].userImage).toBe(
+      userImage
+    );
+    expect((PostUserAvatar as jest.Mock).mock.calls[0][0].username).toBe(
+      username
+    );
     expect(mockedImage).toHaveBeenCalledTimes(1);
     expect(mockedImage.mock.calls[0][0]).toBe(image);
     expect(mockedImage.mock.calls[0][1]).toBe(priority);

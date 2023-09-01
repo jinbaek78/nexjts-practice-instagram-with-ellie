@@ -1,15 +1,28 @@
-export const simpleFakePost = {
+import { FullPost, SimplePost } from '@/model/post';
+
+export const fakeSimplePost: SimplePost = {
   username: 'testUser1',
   userImage: '/testUserImage1',
   image: '/testImage1',
   likes: ['testUser1', 'testUser2'],
   text: 'test',
   comments: 1,
-  id: 'testId2',
+  id: 'testId1',
   createdAt: '2023-08',
 };
 
-export const fakeSimplePosts = [
+export const fakeFullPost: FullPost = {
+  username: 'testUser1',
+  userImage: '/testUserImage1',
+  image: '/testImage1',
+  likes: ['testUser1', 'testUser2'],
+  text: 'test',
+  comments: [{ username: 'testUser1', comment: 'test', image: '/test1' }],
+  id: 'testId1',
+  createdAt: '2023-08',
+};
+
+export const fakeSimplePosts: SimplePost[] = [
   {
     username: 'testUser1',
     userImage: '/testUserImage1',
