@@ -9,7 +9,6 @@ const simplePostProjection = `
   "likes": likes[]->username,
   "text": comments[0].comment,
   "comments": count(comments),
-  console.log('GET called: user: ', user);
   "id": _id,
   "createdAt": _createdAt
 `;

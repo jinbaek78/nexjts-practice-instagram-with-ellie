@@ -4,7 +4,7 @@ import { fakeSession } from '@/tests/mock/user/session';
 import { getServerSession } from 'next-auth';
 import { NextResponse } from 'next/server';
 import { createMocks } from 'node-mocks-http';
-import { fakeDetailUser } from '@/tests/mock/user/detailUsers';
+import { fakeDetailUser } from '@/tests/mock/user/users';
 import { getPost } from '@/service/posts';
 import { GET } from '@/app/api/posts/[id]/route';
 import { fakeFullPost } from '@/tests/mock/post/post';

@@ -6,7 +6,7 @@ import { fakeSession } from '@/tests/mock/user/session';
 import { getServerSession } from 'next-auth';
 import { NextResponse } from 'next/server';
 import { createMocks } from 'node-mocks-http';
-import { fakeDetailUser } from '@/tests/mock/user/detailUsers';
+import { fakeDetailUser } from '@/tests/mock/user/users';
 
 jest.mock('next-auth', () => ({ getServerSession: jest.fn() }));
 jest.mock('@/service/user', () => ({ getUserByUsername: jest.fn() }));
