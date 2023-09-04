@@ -12,13 +12,25 @@ import PostUserAvatar from './PostUserAvatar';
 type Props = {
   post: SimplePost;
   priority?: boolean;
+  onlyImage?: boolean;
+  onClick?: (callback: () => void) => void;
 };
-export default function PostListCard({ post, priority = false }: Props) {
+export default function PostListCard({
+  post,
+  priority = false,
+  onlyImage = false,
+  onClick,
+}: Props) {
   const [openModal, setOpenModal] = useState(false);
   const { userImage, username, image, createdAt, likes, text } = post;
+  const handlePostImageClick = () => {
+    onClick && onClick(() => setOpenModal(true));
+  };
   return (
     <article className="rounded-lg shadow-md border border-gray-200">
-      <PostUserAvatar userImage={userImage} username={username} />
+      {!onlyImage && (
+        <PostUserAvatar userImage={userImage} username={username} />
+      )}
       <Image
         className="w-full object-cover aspect-square"
         src={image}
@@ -26,15 +38,21 @@ export default function PostListCard({ post, priority = false }: Props) {
         width={500}
         height={500}
         priority={priority}
-        onClick={() => setOpenModal(true)}
+        onClick={handlePostImageClick}
       />
-      <ActionBar
-        createdAt={createdAt}
-        likes={likes}
-        text={text}
-        username={username}
-      />
-      <CommentForm />
+
+      {!onlyImage && (
+        <ActionBar
+          createdAt={createdAt}
+          likes={likes}
+          text={text}
+          username={username}
+        />
+      )}
+
+      {!onlyImage && <CommentForm />}
+      {/* <CommentForm /> */}
+
       {openModal && (
         <ModalPortal>
           <PostModal onClose={() => setOpenModal(false)}>

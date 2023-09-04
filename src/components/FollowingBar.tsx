@@ -29,7 +29,7 @@ export default function FollowingBar() {
           {users.map(({ username, image }) => (
             <Link
               className="flex flex-col items-center w-20"
-              href={`/user/${image}`}
+              href={`/user/${username}`}
               key={username}
             >
               <Avatar image={image} highlight />

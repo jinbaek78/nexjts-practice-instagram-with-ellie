@@ -4,6 +4,7 @@ import useSWR from 'swr';
 import PostUserAvatar from './PostUserAvatar';
 import ActionBar from './ActionBar';
 import Avatar from './ui/Avatar';
+import CommentForm from './CommentForm';
 
 type Props = {
   post: SimplePost;
@@ -45,6 +46,7 @@ export default function PostDetail({ post }: Props) {
             )}
         </ul>
         <ActionBar likes={likes} username={username} createdAt={createdAt} />
+        <CommentForm />
       </div>
     </section>
   );

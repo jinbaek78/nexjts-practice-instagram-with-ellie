@@ -46,3 +46,54 @@ export async function getPost(id: string) {
     )
     .then((post) => ({ ...post, image: urlFor(post.image) }));
 }
+
+export async function getUserPosts(username: string) {
+  return client
+    .fetch(
+      `*[_type == "post" && author->username == "${username}" ]{${simplePostProjection}}
+      `
+    )
+    .then((posts) => {
+      if (posts.length === 1 && posts[0] === null) {
+        return [];
+      }
+      return posts.map((post: SimplePost) => ({
+        ...post,
+        image: urlFor(post.image),
+      }));
+    });
+}
+
+export async function getUserSavedPosts(username: string) {
+  return client
+    .fetch(
+      `*[_type == "user" && username == "${username}"].bookmarks[]->{${simplePostProjection}}
+      `
+    )
+    .then((posts) => {
+      if (posts.length === 1 && posts[0] === null) {
+        return [];
+      }
+      return posts.map((post: SimplePost) => ({
+        ...post,
+        image: urlFor(post.image),
+      }));
+    });
+}
+
+export async function getUserLikedPosts(userId: string) {
+  return client
+    .fetch(
+      `*[_type == "post" && "${userId}" in likes[]->._id ]{${simplePostProjection}}`
+    )
+    .then((posts) => {
+      console.log('getuserLiekdPosts: posts: ', posts);
+      if (posts.length === 1 && posts[0] === null) {
+        return [];
+      }
+      return posts.map((post: SimplePost) => ({
+        ...post,
+        image: urlFor(post.image),
+      }));
+    });
+}
