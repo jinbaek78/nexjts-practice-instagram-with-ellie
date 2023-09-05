@@ -10,7 +10,7 @@ import Avatar from '@/components/ui/Avatar';
 import ScrollableBar from '@/components/ui/ScrollableBar';
 import FollowingBar from '@/components/FollowingBar';
 import { SWRConfig } from 'swr';
-import { fakeDetailUser } from '@/tests/mock/user/users';
+import { fakeHomeUser } from '@/tests/mock/user/users';
 
 jest.mock('react-spinners');
 jest.mock('@/components/ui/Avatar');
@@ -23,7 +23,7 @@ describe('FollowingBar', () => {
     (ScrollableBar as jest.Mock).mockReset();
   });
   it('should render with loading spinner initially', async () => {
-    const fetcher = jest.fn(async (url) => fakeDetailUser);
+    const fetcher = jest.fn(async (url) => fakeHomeUser);
     render(
       <SWRConfig value={{ fetcher, provider: () => new Map() }}>
         <FollowingBar />
@@ -37,7 +37,7 @@ describe('FollowingBar', () => {
     expect(PropagateLoader).toHaveBeenCalledTimes(1);
   });
   it('should invoke the scrollableBar component when a user information is provided', async () => {
-    const fetcher = jest.fn(async (url) => fakeDetailUser);
+    const fetcher = jest.fn(async (url) => fakeHomeUser);
     render(
       <SWRConfig value={{ fetcher, provider: () => new Map() }}>
         <FollowingBar />

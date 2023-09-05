@@ -1,4 +1,4 @@
-import { BookmarkIcon, HeartIcon } from './ui/icons';
+import { BookMarkIcon, HeartIcon } from './ui/icons';
 import { parseDate } from '@/util/date';
 
 type Props = {
@@ -12,7 +12,7 @@ export default function ActionBar({ likes, username, text, createdAt }: Props) {
     <>
       <div className="flex justify-between my-2 px-4">
         <HeartIcon />
-        <BookmarkIcon />
+        <BookMarkIcon />
       </div>
       <div className="px-4 py-1">
         <p className="text-sm font-bold mb-2">

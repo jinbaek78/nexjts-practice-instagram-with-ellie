@@ -1,6 +1,6 @@
 'use client';
 
-import { ProfileUser } from '@/model/user';
+import { SearchUser } from '@/model/user';
 import { FormEvent, useState } from 'react';
 import useSWR from 'swr';
 import GridSpinner from './ui/GridSpinner';
@@ -14,7 +14,7 @@ export default function UserSearch() {
     data: users,
     isLoading,
     error,
-  } = useSWR<ProfileUser[]>(`/api/search/${debouncedKeyword}`);
+  } = useSWR<SearchUser[]>(`/api/search/${debouncedKeyword}`);
 
   const onSubmit = (event: FormEvent) => {
     event.preventDefault();
@@ -35,7 +35,7 @@ export default function UserSearch() {
       {error && <p>Something went wrong</p>}
       {isLoading && <GridSpinner />}
       {!isLoading && !error && users?.length === 0 && (
-        <p>There is no matched User</p>
+        <p>There is no matched AuthUser</p>
       )}
       <ul className="w-full p-4">
         {users &&

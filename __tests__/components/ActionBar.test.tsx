@@ -5,15 +5,16 @@ import {
   waitForElementToBeRemoved,
 } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import BookMarkIcon from '@/components/ui/icons/BookmarkIcon';
-import { HeartIcon } from '@/components/ui/icons';
+import { BookMarkIcon, HeartIcon } from '@/components/ui/icons';
 import { parseDate } from '@/util/date';
 import { fakeSimplePosts } from '@/tests/mock/post/post';
 import ActionBar from '@/components/ActionBar';
 
 jest.mock('@/util/date');
-jest.mock('@/components/ui/icons');
-jest.mock('@/components/ui/icons/BookmarkIcon');
+jest.mock('@/components/ui/icons', () => ({
+  BookMarkIcon: jest.fn(),
+  HeartIcon: jest.fn(),
+}));
 
 describe('ActionBar', () => {
   const fakeSimplePostWithOneLikes = fakeSimplePosts[0];

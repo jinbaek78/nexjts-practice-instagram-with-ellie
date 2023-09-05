@@ -1,6 +1,6 @@
 import 'isomorphic-fetch';
 import { searchUsers } from '@/service/user';
-import { fakeProfileUsers } from '@/tests/mock/user/users';
+import { fakeSearchUsers } from '@/tests/mock/user/users';
 import { NextRequest, NextResponse } from 'next/server';
 import { GET } from '@/app/api/search/[keyword]/route';
 import httpMocks from 'node-mocks-http';
@@ -18,7 +18,7 @@ describe('/api/search/[keyword]', () => {
     const keyword = 'test';
     const context = { params: { keyword: keyword } };
     const req = httpMocks.createRequest({ method: 'GET' });
-    (searchUsers as jest.Mock).mockImplementation(async () => fakeProfileUsers);
+    (searchUsers as jest.Mock).mockImplementation(async () => fakeSearchUsers);
 
     await GET(req, context);
 
@@ -27,6 +27,6 @@ describe('/api/search/[keyword]', () => {
       context.params.keyword
     );
     expect(NextResponse.json).toHaveBeenCalledTimes(1);
-    expect(NextResponse.json).toHaveBeenCalledWith(fakeProfileUsers);
+    expect(NextResponse.json).toHaveBeenCalledWith(fakeSearchUsers);
   });
 });

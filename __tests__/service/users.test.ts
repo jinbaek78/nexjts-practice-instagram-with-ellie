@@ -1,6 +1,6 @@
 import { client } from '@/service/sanity';
 import { getUserByUsername, searchUsers } from '@/service/user';
-import { fakeProfileUsers } from '@/tests/mock/user/users';
+import { fakeSearchUsers } from '@/tests/mock/user/users';
 import { fakeSession } from '@/tests/mock/user/session';
 
 jest.mock('@/service/sanity', () => ({
@@ -36,7 +36,7 @@ describe('Users Service', () => {
     const MATCHING_QUERY = `&& (name match "${KEYWORD}" || username match "${KEYWORD}")`;
     it('should use matching query when a keyword is provided', async () => {
       (client.fetch as jest.Mock).mockImplementation(
-        async () => fakeProfileUsers
+        async () => fakeSearchUsers
       );
       await searchUsers(KEYWORD);
 
@@ -48,7 +48,7 @@ describe('Users Service', () => {
 
     it('should not use matching query when a keyword is not provided', async () => {
       (client.fetch as jest.Mock).mockImplementation(
-        async () => fakeProfileUsers
+        async () => fakeSearchUsers
       );
       await searchUsers();
 
@@ -60,10 +60,10 @@ describe('Users Service', () => {
 
     it('should convert correctly to zero when a null value is provided for a following or followers ', async () => {
       (client.fetch as jest.Mock).mockImplementation(
-        async () => fakeProfileUsers
+        async () => fakeSearchUsers
       );
       const result = await searchUsers(KEYWORD);
-      const convertedResult = fakeProfileUsers.map((user) => ({
+      const convertedResult = fakeSearchUsers.map((user) => ({
         ...user,
         following: user.following ?? 0,
         followers: user.followers ?? 0,

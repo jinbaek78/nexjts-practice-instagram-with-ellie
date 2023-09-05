@@ -6,7 +6,7 @@ import { fakeSession } from '@/tests/mock/user/session';
 import { getServerSession } from 'next-auth';
 import { NextResponse } from 'next/server';
 import { createMocks } from 'node-mocks-http';
-import { fakeDetailUser } from '@/tests/mock/user/users';
+import { fakeHomeUser } from '@/tests/mock/user/users';
 
 jest.mock('next-auth', () => ({ getServerSession: jest.fn() }));
 jest.mock('@/service/user', () => ({ getUserByUsername: jest.fn() }));
@@ -37,7 +37,7 @@ describe('/api/me', () => {
 
   it('should return user data if the session is available', async () => {
     (getUserByUsername as jest.Mock).mockImplementation(
-      async () => fakeDetailUser
+      async () => fakeHomeUser
     );
     (getServerSession as jest.Mock).mockImplementation(async () => fakeSession);
 
@@ -46,6 +46,6 @@ describe('/api/me', () => {
     expect(getUserByUsername).toHaveBeenCalledTimes(1);
     expect(getUserByUsername).toHaveBeenCalledWith(fakeSession.user.username);
     expect(NextResponse.json).toHaveBeenCalledTimes(1);
-    expect(NextResponse.json).toHaveBeenCalledWith(fakeDetailUser);
+    expect(NextResponse.json).toHaveBeenCalledWith(fakeHomeUser);
   });
 });

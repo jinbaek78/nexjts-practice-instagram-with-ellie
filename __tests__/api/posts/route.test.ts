@@ -4,7 +4,7 @@ import { fakeSession } from '@/tests/mock/user/session';
 import { getServerSession } from 'next-auth';
 import { NextResponse } from 'next/server';
 import { createMocks } from 'node-mocks-http';
-import { fakeDetailUser } from '@/tests/mock/user/users';
+import { fakeHomeUser } from '@/tests/mock/user/users';
 import { GET } from '@/app/api/posts/route';
 import { getFollowingPostsOf } from '@/service/posts';
 
@@ -37,7 +37,7 @@ describe('/api/me', () => {
 
   it('should return user data if the session is available', async () => {
     (getFollowingPostsOf as jest.Mock).mockImplementation(
-      async () => fakeDetailUser
+      async () => fakeHomeUser
     );
     (getServerSession as jest.Mock).mockImplementation(async () => fakeSession);
 
@@ -46,6 +46,6 @@ describe('/api/me', () => {
     expect(getFollowingPostsOf).toHaveBeenCalledTimes(1);
     expect(getFollowingPostsOf).toHaveBeenCalledWith(fakeSession.user.username);
     expect(NextResponse.json).toHaveBeenCalledTimes(1);
-    expect(NextResponse.json).toHaveBeenCalledWith(fakeDetailUser);
+    expect(NextResponse.json).toHaveBeenCalledWith(fakeHomeUser);
   });
 });
