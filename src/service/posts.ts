@@ -74,6 +74,24 @@ export async function getSavedPostsOf(username: string) {
     )
     .then(mapPosts);
 }
+export async function addLikedUserToPost(postId: string, userId: string) {
+  return await client
+    .patch(postId)
+    .insert('after', 'likes[-1]', [
+      {
+        _ref: userId,
+        _type: 'reference',
+      },
+    ])
+    .commit({ autoGenerateArrayKeys: true });
+}
+
+export async function removeUserFromLikes(postId: string, userId: string) {
+  return client
+    .patch(postId)
+    .unset([`likes[_ref=="${userId}"]`])
+    .commit();
+}
 
 function mapPosts(posts: SimplePost[]) {
   return posts.map((post: SimplePost) => ({

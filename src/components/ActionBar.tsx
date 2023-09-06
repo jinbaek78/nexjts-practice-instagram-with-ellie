@@ -1,4 +1,5 @@
-import { BookMarkIcon, HeartIcon } from './ui/icons';
+import { useSession } from 'next-auth/react';
+import { BookMarkIcon, HeartFillIcon, HeartIcon } from './ui/icons';
 import { parseDate } from '@/util/date';
 
 type Props = {
@@ -6,12 +7,27 @@ type Props = {
   username: string;
   createdAt: string;
   text?: string;
+  onLikedButtonClick?: (isLiked: boolean, loggedInUsername: string) => void;
 };
-export default function ActionBar({ likes, username, text, createdAt }: Props) {
+export default function ActionBar({
+  likes,
+  username,
+  text,
+  createdAt,
+  onLikedButtonClick,
+}: Props) {
+  const { data: session } = useSession();
+  const loggedInUsername = session?.user?.username || '';
+  const isLiked = likes?.includes(loggedInUsername) ?? false;
+  const handleLikedButtonClick = () => {
+    onLikedButtonClick && onLikedButtonClick(isLiked, loggedInUsername);
+  };
   return (
     <>
       <div className="flex justify-between my-2 px-4">
-        <HeartIcon />
+        <div onClick={handleLikedButtonClick}>
+          {isLiked ? <HeartFillIcon /> : <HeartIcon />}
+        </div>
         <BookMarkIcon />
       </div>
       <div className="px-4 py-1">

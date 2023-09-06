@@ -1,13 +1,47 @@
 'use client';
 import { SimplePost } from '@/model/post';
-import useSWR from 'swr';
+import useSWR, { useSWRConfig } from 'swr';
 import PostListCard from './PostListCard';
 import GridSpinner from './ui/GridSpinner';
 
+export type PostData = {
+  type: 'like' | 'bookmark' | 'comment';
+  method: 'add' | 'delete';
+  username: string;
+};
+
 export default function PostList() {
-  const { data: posts, isLoading: loading } =
-    useSWR<SimplePost[]>('/api/posts');
-  // console.log('posts: ', posts);
+  const {
+    data: posts,
+    isLoading: loading,
+    mutate,
+  } = useSWR<SimplePost[]>('/api/posts');
+  console.log('posts: ', posts);
+
+  const handleToggleLikedButton = (
+    index: number,
+    updatedPost: SimplePost,
+    postData: PostData
+  ) => {
+    if (posts) {
+      const { method, type, username } = postData;
+      const postId = posts[index].id;
+      const updatedPosts = [...posts];
+      updatedPosts[index] = { ...updatedPost };
+      mutate(updatedPosts, { revalidate: false });
+      const data: PostData = {
+        type, //"likes" | "bookmark" | "comments"
+        method, // 'delete'
+        username,
+      };
+      console.log('tobefetched data: ', data);
+
+      fetch(`/api/posts/${postId}`, {
+        method: 'POST',
+        body: JSON.stringify(data),
+      }).then((_) => mutate());
+    }
+  };
   return (
     <section>
       {loading && (
@@ -19,7 +53,12 @@ export default function PostList() {
         <ul>
           {posts.map((post, index) => (
             <li key={post.id} className="mb-4">
-              <PostListCard post={post} priority={index < 2} />
+              <PostListCard
+                post={post}
+                priority={index < 2}
+                index={index}
+                onLikedButtonClick={handleToggleLikedButton}
+              />
             </li>
           ))}
         </ul>

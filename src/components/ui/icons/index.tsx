@@ -8,3 +8,4 @@ export { default as HeartIcon } from './HeartIcon';
 export { default as BookMarkIcon } from './BookMarkIcon';
 export { default as CloseIcon } from './CloseIcon';
 export { default as PostIcon } from './PostIcon';
+export { default as HeartFillIcon } from './HeartFillIcon';
