@@ -1,6 +1,14 @@
 import { client } from '@/service/sanity';
-import { getUserByUsername, searchUsers } from '@/service/user';
-import { fakeSearchUsers } from '@/tests/mock/user/users';
+import {
+  getUserByUsername,
+  getUserForProfile,
+  searchUsers,
+} from '@/service/user';
+import {
+  fakeProfileUser,
+  fakeProfileUsers,
+  fakeSearchUsers,
+} from '@/tests/mock/user/users';
 import { fakeSession } from '@/tests/mock/user/session';
 
 jest.mock('@/service/sanity', () => ({
@@ -68,6 +76,37 @@ describe('Users Service', () => {
         following: user.following ?? 0,
         followers: user.followers ?? 0,
       }));
+
+      expect(result).toEqual(convertedResult);
+    });
+  });
+
+  describe('getUserForProfile', () => {
+    it('should invoke fetch method with correct query', async () => {
+      (client.fetch as jest.Mock).mockImplementation(
+        async () => fakeProfileUser
+      );
+      const fetchQuery = `*[_type == "user" && username == "${username}"]`;
+
+      await getUserForProfile(username);
+
+      expect(client.fetch).toHaveBeenCalledTimes(1);
+      expect((client.fetch as jest.Mock).mock.calls[0][0]).toContain(
+        fetchQuery
+      );
+    });
+
+    it('should convert correctly to zero when a null value is provided for a following or followers ', async () => {
+      const user = fakeProfileUsers[0];
+      (client.fetch as jest.Mock).mockImplementation(
+        async () => fakeProfileUsers[0]
+      );
+      const result = await getUserForProfile('');
+      const convertedResult = {
+        ...user,
+        following: user.following ?? 0,
+        followers: user.followers ?? 0,
+      };
 
       expect(result).toEqual(convertedResult);
     });

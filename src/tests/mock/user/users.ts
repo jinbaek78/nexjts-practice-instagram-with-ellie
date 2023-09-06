@@ -14,14 +14,14 @@ export const fakeProfileUser: ProfileUser = {
   posts: 2,
 };
 
-export const fakeProfileUsers: ProfileUser[] = [
+export const fakeProfileUsers = [
   {
     name: 'fakeProfileUser1',
     username: 'fakeProfileUser1',
     email: 'fakeProfileUser1@gmail.com',
     image: '/fakeProfileUser1',
     //
-    following: 1,
+    following: null,
     followers: 1,
     posts: 1,
   },
