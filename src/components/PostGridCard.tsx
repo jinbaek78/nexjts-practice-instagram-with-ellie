@@ -14,7 +14,6 @@ export default function PostGridCard({ post, priority = false }: Props) {
   const { image, username } = post;
   const { data: session } = useSession();
   const [openModal, setOpenModal] = useState(false);
-  console.log('PostGridCard: session: ', session);
 
   const handleOpenPost = () => {
     if (!session?.user) {
