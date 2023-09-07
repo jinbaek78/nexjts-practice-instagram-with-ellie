@@ -1,6 +1,16 @@
-import { getFollowingPostsOf, getPost } from '@/service/posts';
+import {
+  getFollowingPostsOf,
+  getLikedPostsOf,
+  getPost,
+  getPostsOf,
+  getSavedPostsOf,
+} from '@/service/posts';
 import { client, urlFor } from '@/service/sanity';
-import { fakeFullPost, fakeSimplePosts } from '@/tests/mock/post/post';
+import {
+  fakeFullPost,
+  fakeFullPosts,
+  fakeSimplePosts,
+} from '@/tests/mock/post/post';
 import { fakeSession } from '@/tests/mock/user/session';
 
 jest.mock('@/service/sanity', () => ({
@@ -89,6 +99,78 @@ describe('PostService', () => {
       );
 
       expect(result).toEqual({ ...fakeFullPost, image: undefined });
+    });
+  });
+
+  describe('getPostsOf', () => {
+    const { id } = fakeFullPost;
+    it('should invoke fetch and urlFor method with correct query', async () => {
+      (client.fetch as jest.Mock).mockImplementation(async () => [
+        fakeFullPost,
+      ]);
+      const username = 'testUsername';
+      const result = await getPostsOf(username);
+
+      expect(urlFor).toHaveBeenCalledTimes(1);
+      expect((urlFor as jest.Mock).mock.calls[0][0]).toBe(fakeFullPost.image);
+
+      expect(client.fetch).toHaveBeenCalledTimes(1);
+      expect((client.fetch as jest.Mock).mock.calls[0][0]).toContain(
+        `*[_type == "post" && author->username == "${username}"]`
+      );
+      expect((client.fetch as jest.Mock).mock.calls[0][0]).toContain(
+        simplePostProjection
+      );
+
+      expect(result).toEqual([{ ...fakeFullPost, image: undefined }]);
+    });
+  });
+
+  describe('getLikedPostsOf', () => {
+    const { id } = fakeFullPost;
+    it('should invoke fetch and urlFor method with correct query', async () => {
+      (client.fetch as jest.Mock).mockImplementation(async () => [
+        fakeFullPost,
+      ]);
+      const username = 'testUsername';
+      const result = await getLikedPostsOf(username);
+
+      expect(urlFor).toHaveBeenCalledTimes(1);
+      expect((urlFor as jest.Mock).mock.calls[0][0]).toBe(fakeFullPost.image);
+
+      expect(client.fetch).toHaveBeenCalledTimes(1);
+      expect((client.fetch as jest.Mock).mock.calls[0][0]).toContain(
+        `*[_type == "post" && "${username}" in likes[]->username]`
+      );
+      expect((client.fetch as jest.Mock).mock.calls[0][0]).toContain(
+        simplePostProjection
+      );
+
+      expect(result).toEqual([{ ...fakeFullPost, image: undefined }]);
+    });
+  });
+
+  describe('getSavedPostsOf', () => {
+    const { id } = fakeFullPost;
+    it('should invoke fetch and urlFor method with correct query', async () => {
+      (client.fetch as jest.Mock).mockImplementation(async () => [
+        fakeFullPost,
+      ]);
+      const username = 'testUsername';
+      const result = await getSavedPostsOf(username);
+
+      expect(urlFor).toHaveBeenCalledTimes(1);
+      expect((urlFor as jest.Mock).mock.calls[0][0]).toBe(fakeFullPost.image);
+
+      expect(client.fetch).toHaveBeenCalledTimes(1);
+      expect((client.fetch as jest.Mock).mock.calls[0][0]).toContain(
+        `*[_type == "post" && _id in *[_type=="user" && username=="${username}"].bookmarks[]._ref]`
+      );
+      expect((client.fetch as jest.Mock).mock.calls[0][0]).toContain(
+        simplePostProjection
+      );
+
+      expect(result).toEqual([{ ...fakeFullPost, image: undefined }]);
     });
   });
 });
