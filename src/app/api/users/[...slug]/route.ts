@@ -9,8 +9,6 @@ type Context = {
 
 export async function GET(_: NextRequest, context: Context) {
   const { slug } = context.params;
-  console.log('/api/users/[...slug] called: ', slug);
-
   if (!slug || !Array.isArray(slug) || slug.length < 2) {
     return new NextResponse('Bad Request', { status: 400 });
   }
