@@ -1,9 +1,11 @@
 import {
+  dislikePost,
   getFollowingPostsOf,
   getLikedPostsOf,
   getPost,
   getPostsOf,
   getSavedPostsOf,
+  likePost,
 } from '@/service/posts';
 import { client, urlFor } from '@/service/sanity';
 import {
@@ -16,9 +18,21 @@ import { fakeSession } from '@/tests/mock/user/session';
 jest.mock('@/service/sanity', () => ({
   client: {
     fetch: jest.fn(),
+    patch: jest.fn(),
   },
   urlFor: jest.fn(),
 }));
+
+// jest.mock('@/service/sanity', () => ({
+//   client: {
+//     fetch: jest.fn(),
+//     patch: jest.fn(),
+//     setIfMissing: jest.fn(),
+//     append: jest.fn(),
+//     commit: jest.fn(),
+//   },
+//   urlFor: jest.fn(),
+// }));
 
 const simplePostProjection = `
   ...,
@@ -37,14 +51,18 @@ describe('PostService', () => {
     user: { username },
   } = fakeSession;
 
+  const commit = jest.fn();
+
   const fetchQuery = `*[_type == "post" && author->username == "${username}"
   || author._ref in *[_type == "user" && username == "${username}"].following[]._ref]
   | order(_createdAt desc){${simplePostProjection}}
   `;
 
   afterEach(() => {
+    (client.patch as jest.Mock).mockReset();
     (client.fetch as jest.Mock).mockReset();
     (urlFor as jest.Mock).mockReset();
+    commit.mockClear();
   });
 
   describe('getFollowingPostsOf', () => {
@@ -171,6 +189,63 @@ describe('PostService', () => {
       );
 
       expect(result).toEqual([{ ...fakeFullPost, image: undefined }]);
+    });
+  });
+
+  describe('likePost', () => {
+    it('should correctly invoke client methods with the expected arguments', async () => {
+      (client.patch as jest.Mock).mockImplementation(() => ({
+        setIfMissing,
+      }));
+      const append = jest.fn().mockImplementation(() => ({ commit }));
+      const setIfMissing = jest.fn().mockImplementation(() => ({ append }));
+      const postId = 'testPost';
+      const userId = 'testUser';
+      const setIfMissingArguments = { likes: [] };
+      const appendArguments = [
+        'likes',
+        [
+          {
+            _ref: userId,
+            _type: 'reference',
+          },
+        ],
+      ];
+      const commitArguments = { autoGenerateArrayKeys: true };
+
+      await likePost(postId, userId);
+
+      expect(client.patch).toHaveBeenCalledTimes(1);
+      expect(client.patch).toHaveBeenCalledWith(postId);
+      expect(setIfMissing).toHaveBeenCalledTimes(1);
+      expect(setIfMissing).toHaveBeenCalledWith(setIfMissingArguments);
+      expect(append).toHaveBeenCalledTimes(1);
+      expect(append).toHaveBeenCalledWith(
+        appendArguments[0],
+        appendArguments[1]
+      );
+      expect(commit).toHaveBeenCalledTimes(1);
+      expect(commit).toHaveBeenCalledWith(commitArguments);
+    });
+  });
+  describe('dislikePost', () => {
+    it('should correctly invoke client methods with the expected arguments', async () => {
+      const unset = jest.fn().mockImplementation(() => ({ commit }));
+      (client.patch as jest.Mock).mockImplementation(() => ({
+        unset,
+      }));
+      const postId = 'testPost';
+      const userId = 'testUser';
+      const unsetArguments = [`likes[_ref=="${userId}"]`];
+
+      await dislikePost(postId, userId);
+
+      expect(client.patch).toHaveBeenCalledTimes(1);
+      expect(client.patch).toHaveBeenCalledWith(postId);
+      expect(unset).toHaveBeenCalledTimes(1);
+      expect(unset).toHaveBeenCalledWith(unsetArguments);
+      expect(commit).toHaveBeenCalledTimes(1);
+      expect(commit).toHaveBeenCalledWith();
     });
   });
 });

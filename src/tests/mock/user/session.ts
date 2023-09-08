@@ -7,5 +7,6 @@ export const fakeSession: Session = {
     image: '/test@',
     name: 'testUserName',
     username: 'test',
+    id: 'testUserId',
   },
 };

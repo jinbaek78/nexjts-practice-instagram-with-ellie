@@ -16,10 +16,8 @@ import PostListCard from '@/components/PostListCard';
 import PostUserAvatar from '@/components/PostUserAvatar';
 
 jest.mock('@/components/ui/Avatar');
-// jest.mock('next/image', () => ({ Image: jest.fn() }));
 jest.mock('@/components/CommentForm');
 jest.mock('@/components/PostUserAvatar');
-// jest.mock('@/components/ActionBar');
 
 jest.mock(
   'next/image',
@@ -50,9 +48,9 @@ describe('PostListCard', () => {
     expect(mockedImage.mock.calls[0][0]).toBe(image);
     expect(mockedImage.mock.calls[0][1]).toBe(priority);
     expect(ActionBar).toBeCalledTimes(1);
-    expect(ActionBar.mock.calls[0][0].createdAt).toBe(createdAt);
-    expect(ActionBar.mock.calls[0][0].likes).toBe(likes);
-    expect(ActionBar.mock.calls[0][0].text).toBe(text);
+    expect((ActionBar as jest.Mock).mock.calls[0][0].post).toEqual(
+      fakeSimplePost
+    );
   });
 
   //

@@ -7,8 +7,6 @@ import {
 import '@testing-library/jest-dom';
 import PostUserAvatar from '@/components/PostUserAvatar';
 import ActionBar from '@/components/ActionBar';
-import Avatar from '@/components/ui/Avatar';
-import Image from 'next/image';
 import { fakeFullPost, fakeSimplePost } from '@/tests/mock/post/post';
 import { SWRConfig } from 'swr';
 import PostDetail from '@/components/PostDetail';
@@ -49,7 +47,8 @@ describe('PostDetail', () => {
     expect(mockedImage).toHaveBeenCalledTimes(2);
     expect(mockedImage.mock.calls[0][0]).toBe(image);
     expect(ActionBar).toHaveBeenCalledTimes(2);
-    expect((ActionBar as jest.Mock).mock.calls[0][0].likes).toEqual(likes);
-    expect((ActionBar as jest.Mock).mock.calls[0][0].createdAt).toBe(createdAt);
+    expect((ActionBar as jest.Mock).mock.calls[0][0].post).toEqual(
+      fakeSimplePost
+    );
   });
 });

@@ -56,7 +56,7 @@ describe('PostGridCard', () => {
     expect(ModalPortal).not.toBeCalled();
   });
 
-  it.only('should invoke modal when a user is logged in and clicks a post image', async () => {
+  it('should invoke modal when a user is logged in and clicks a post image', async () => {
     (useSession as jest.Mock).mockImplementation(() => ({
       data: fakeSession,
     }));
