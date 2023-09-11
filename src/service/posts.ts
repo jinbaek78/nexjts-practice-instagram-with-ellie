@@ -65,6 +65,7 @@ export async function getLikedPostsOf(username: string) {
 }
 
 export async function getSavedPostsOf(username: string) {
+  console.log('getSavedPostsOf: username: ', username);
   return client
     .fetch(
       `*[_type == "post" && _id in *[_type=="user" && username=="${username}"].bookmarks[]._ref]
@@ -76,6 +77,7 @@ export async function getSavedPostsOf(username: string) {
 }
 
 function mapPosts(posts: SimplePost[]) {
+  console.log('mapPosts: ', posts);
   return posts.map((post: SimplePost) => ({
     ...post,
     likes: post.likes ?? [],

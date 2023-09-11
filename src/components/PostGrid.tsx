@@ -8,9 +8,13 @@ type Props = {
   query: string;
 };
 export default function PostGrid({ username, query }: Props) {
+  // const revalidate = 5;
   const { data: posts, isLoading: loading } = useSWR<SimplePost[]>(
-    `/api/users/${username}/${query}`
+    `/api/users/${username}/${query}`,
+    { revalidateOnMount: true }
   );
+  console.log('PostGrid: posts: ', posts);
+  console.log('PostGrid: username, tab: ', username, query);
 
   return (
     <div className="w-full text-center">

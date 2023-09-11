@@ -4,6 +4,7 @@ const simpleUser1 = { username: 'simpleUser1', image: '/simpleUser1' };
 const simpleUser2 = { username: 'simpleUser2', image: '/simpleUser2' };
 
 export const fakeProfileUser: ProfileUser = {
+  id: 'homeuserId',
   name: 'homeUser',
   username: 'homeUsername',
   email: 'homeUsername@gmail.com',
@@ -37,6 +38,7 @@ export const fakeProfileUsers = [
   },
 ];
 export const fakeHomeUser: HomeUser = {
+  id: 'testUserId',
   name: 'homeUser',
   username: 'homeUsername',
   email: 'homeUsername@gmail.com',
@@ -49,6 +51,7 @@ export const fakeHomeUser: HomeUser = {
 
 export const fakeHomeUsers: HomeUser[] = [
   {
+    id: 'testUserId1',
     name: 'testName1',
     username: 'testUser1',
     email: 'testEmail@gmail.com',
@@ -59,6 +62,7 @@ export const fakeHomeUsers: HomeUser[] = [
     bookmarks: [],
   },
   {
+    id: 'testUserId2',
     name: 'testName2',
     username: 'testUser2',
     email: 'testEmail2@gmail.com',
@@ -71,6 +75,7 @@ export const fakeHomeUsers: HomeUser[] = [
 ];
 
 export const fakeSearchUser: SearchUser = {
+  id: 'testUserId1',
   name: 'testName1',
   username: 'testUser1',
   email: 'testEmail1@gmail.com',
