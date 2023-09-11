@@ -10,25 +10,43 @@ import Avatar from '@/components/ui/Avatar';
 import ScrollableBar from '@/components/ui/ScrollableBar';
 import FollowingBar from '@/components/FollowingBar';
 import { SWRConfig } from 'swr';
-import { fakeHomeUser } from '@/tests/mock/user/users';
+import { fakeHomeUser, fakeHomeUsers } from '@/tests/mock/user/users';
+import useMe from '@/hooks/me';
+import { HomeUser } from '@/model/user';
 
 jest.mock('react-spinners');
 jest.mock('@/components/ui/Avatar');
 jest.mock('@/components/ui/ScrollableBar');
+jest.mock('@/hooks/me');
 
 describe('FollowingBar', () => {
+  const fetcher: jest.Mock<Promise<HomeUser | undefined>, [], any> = jest.fn(
+    async () => fakeHomeUser
+  );
+
+  beforeEach(() => {
+    fetcher.mockImplementation(async () => fakeHomeUser);
+    (useMe as jest.Mock).mockImplementation(() => ({
+      user: fakeHomeUsers[0],
+      isLoading: false,
+      error: undefined,
+    }));
+  });
+
   afterEach(() => {
+    fetcher.mockReset();
     (Avatar as jest.Mock).mockReset();
     (PropagateLoader as jest.Mock).mockReset();
     (ScrollableBar as jest.Mock).mockReset();
+    (useMe as jest.Mock).mockReset();
   });
   it('should render with loading spinner initially', async () => {
-    const fetcher = jest.fn(async (url) => fakeHomeUser);
-    render(
-      <SWRConfig value={{ fetcher, provider: () => new Map() }}>
-        <FollowingBar />
-      </SWRConfig>
-    );
+    (useMe as jest.Mock).mockImplementation(() => ({
+      user: fakeHomeUsers[0],
+      isLoading: true,
+      error: undefined,
+    }));
+    renderFollowingBar(fetcher);
 
     await waitFor(() => {
       expect(PropagateLoader).toHaveBeenCalled();
@@ -37,26 +55,30 @@ describe('FollowingBar', () => {
     expect(PropagateLoader).toHaveBeenCalledTimes(1);
   });
   it('should invoke the scrollableBar component when a user information is provided', async () => {
-    const fetcher = jest.fn(async (url) => fakeHomeUser);
-    render(
-      <SWRConfig value={{ fetcher, provider: () => new Map() }}>
-        <FollowingBar />
-      </SWRConfig>
-    );
+    renderFollowingBar(fetcher);
 
-    await waitFor(() => {}, { timeout: 1 });
     expect(ScrollableBar).toHaveBeenCalledTimes(1);
   });
 
   it('should not invoke the scrollableBar component when a user information is not provided', async () => {
-    const fetcher = jest.fn(async (url) => undefined);
-    render(
+    (useMe as jest.Mock).mockImplementation(() => ({
+      user: undefined,
+      isLoading: true,
+      error: undefined,
+    }));
+    fetcher.mockImplementation(async () => undefined);
+    renderFollowingBar(fetcher);
+
+    expect(ScrollableBar).not.toBeCalled();
+  });
+
+  function renderFollowingBar(
+    fetcher: jest.Mock<Promise<HomeUser | undefined>, [], any>
+  ) {
+    return render(
       <SWRConfig value={{ fetcher, provider: () => new Map() }}>
         <FollowingBar />
       </SWRConfig>
     );
-
-    await waitFor(() => {}, { timeout: 1 });
-    expect(ScrollableBar).not.toBeCalled();
-  });
+  }
 });

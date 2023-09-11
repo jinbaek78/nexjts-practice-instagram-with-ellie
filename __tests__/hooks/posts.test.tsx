@@ -7,7 +7,7 @@ import httpMocks from 'node-mocks-http';
 
 global.fetch = jest.fn();
 
-describe('posts', () => {
+describe('usePosts hook', () => {
   const fetcher = jest.fn(async () => fakeSimplePosts);
   const res = httpMocks.createResponse();
 
