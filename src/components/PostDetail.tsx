@@ -11,7 +11,9 @@ type Props = {
 };
 export default function PostDetail({ post }: Props) {
   const { id, userImage, username, image, createdAt, likes } = post;
-  const { data } = useSWR<FullPost>(`/api/posts/${id}`);
+  const { data } = useSWR<FullPost>(`/api/posts/${id}`, {
+    revalidateOnMount: true,
+  });
   const comments = data?.comments;
   return (
     <section className="flex w-full h-full">
@@ -31,7 +33,7 @@ export default function PostDetail({ post }: Props) {
           {comments &&
             comments.map(
               ({ image, username: commentUsername, comment }, index) => (
-                <li key={index} className="flex items-center mb-1">
+                <li key={index} className="flex items-center mb-1 my-2">
                   <Avatar
                     image={image}
                     size="small"
@@ -45,8 +47,8 @@ export default function PostDetail({ post }: Props) {
               )
             )}
         </ul>
-        <ActionBar post={post} />
-        <CommentForm />
+        <ActionBar post={post} modal />
+        <CommentForm post={post} comments={comments} />
       </div>
     </section>
   );

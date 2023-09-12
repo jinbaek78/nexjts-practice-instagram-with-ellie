@@ -16,6 +16,7 @@ type Props = {
 export default function PostListCard({ post, priority = false }: Props) {
   const [openModal, setOpenModal] = useState(false);
   const { userImage, username, image, createdAt, likes, text } = post;
+  const handleOpenModal = () => setOpenModal(true);
   return (
     <article className="rounded-lg shadow-md border border-gray-200">
       <PostUserAvatar userImage={userImage} username={username} />
@@ -26,10 +27,10 @@ export default function PostListCard({ post, priority = false }: Props) {
         width={500}
         height={500}
         priority={priority}
-        onClick={() => setOpenModal(true)}
+        onClick={handleOpenModal}
       />
-      <ActionBar post={post} />
-      <CommentForm />
+      <ActionBar post={post} onCommentClick={handleOpenModal} />
+      <CommentForm post={post} />
       {openModal && (
         <ModalPortal>
           <PostModal onClose={() => setOpenModal(false)}>

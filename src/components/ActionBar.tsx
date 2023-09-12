@@ -12,8 +12,14 @@ import useMe from '@/hooks/me';
 
 type Props = {
   post: SimplePost;
+  onCommentClick?: () => void;
+  modal?: boolean;
 };
-export default function ActionBar({ post }: Props) {
+export default function ActionBar({
+  post,
+  onCommentClick,
+  modal = false,
+}: Props) {
   const { id, likes, username, text, createdAt } = post;
   const { user, setBookmark } = useMe();
   const liked = user ? likes.includes(user.username) : false;
@@ -47,11 +53,21 @@ export default function ActionBar({ post }: Props) {
         <p className="text-sm font-bold mb-2">
           {`${likes?.length ?? 0}`} {likes?.length > 1 ? 'likes' : 'like'}
         </p>
-        {text && (
-          <p>
-            <span className="font-bold mr-1">{username}</span>
-            {text}
-          </p>
+        {text && !modal && (
+          <>
+            <p>
+              <span className="font-bold mr-1">{username}</span>
+              {text}
+            </p>
+            {post.comments > 1 && (
+              <p className="font-bold mr-1 text-sky-600 mt-3 mb-5 text-xl">
+                <span
+                  onClick={() => onCommentClick && onCommentClick()}
+                  className="cursor-pointer"
+                >{`View all ${post.comments} comments`}</span>
+              </p>
+            )}
+          </>
         )}
         <p className="text-xs text-neutral-500 uppercase my-2">
           {parseDate(createdAt)}
