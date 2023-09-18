@@ -6,15 +6,18 @@ import {
 } from './ui/icons';
 import { parseDate } from '@/util/date';
 import ToggleButton from './ui/ToggleButton';
-import { SimplePost } from '@/model/post';
+import { Comment, SimplePost } from '@/model/post';
 import usePosts from '@/hooks/posts';
 import useMe from '@/hooks/me';
+import CommentForm from './CommentForm';
 
 type Props = {
   post: SimplePost;
+  children?: React.ReactNode;
+  onComment: (comment: Comment) => void;
 };
-export default function ActionBar({ post }: Props) {
-  const { id, likes, username, text, createdAt } = post;
+export default function ActionBar({ post, children, onComment }: Props) {
+  const { id, likes, createdAt } = post;
   const { user, setBookmark } = useMe();
   const liked = user ? likes.includes(user.username) : false;
   const bookmarked = user?.bookmarks.includes(id) ?? false;
@@ -25,6 +28,10 @@ export default function ActionBar({ post }: Props) {
 
   const handleBookmark = (bookmark: boolean) => {
     user && setBookmark(id, bookmark);
+  };
+
+  const handleComment = (comment: string) => {
+    user && onComment({ comment, username: user.username, image: user.image });
   };
 
   return (
@@ -47,16 +54,12 @@ export default function ActionBar({ post }: Props) {
         <p className="text-sm font-bold mb-2">
           {`${likes?.length ?? 0}`} {likes?.length > 1 ? 'likes' : 'like'}
         </p>
-        {text && (
-          <p>
-            <span className="font-bold mr-1">{username}</span>
-            {text}
-          </p>
-        )}
+        {children}
         <p className="text-xs text-neutral-500 uppercase my-2">
           {parseDate(createdAt)}
         </p>
       </div>
+      <CommentForm onPostComment={handleComment} />
     </>
   );
 }

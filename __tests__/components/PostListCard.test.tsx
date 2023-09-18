@@ -1,41 +1,53 @@
 import '@/tests/mock/module/ActionBar';
 import ActionBar from '@/tests/mock/module/ActionBar';
-import {
-  render,
-  screen,
-  waitFor,
-  waitForElementToBeRemoved,
-} from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import Avatar from '@/components/ui/Avatar';
-import Image from 'next/image';
-import CommentForm from '@/components/CommentForm';
-// import ActionBar from '@/components/ActionBar';
+
 import { fakeSimplePosts } from '@/tests/mock/post/post';
 import PostListCard from '@/components/PostListCard';
 import PostUserAvatar from '@/components/PostUserAvatar';
-
-jest.mock('@/components/ui/Avatar');
-jest.mock('@/components/CommentForm');
+import PostModal from '@/components/PostModal';
+import PostDetail from '@/components/PostDetail';
+import ModalPortal from '@/components/ui/ModalPortal';
+import userEvent from '@testing-library/user-event';
+import usePosts from '@/hooks/posts';
 jest.mock('@/components/PostUserAvatar');
-
-jest.mock(
-  'next/image',
-  () =>
-    function Image({ src, priority }: { src: string; priority: boolean }) {
-      return mockedImage(src, priority);
-    }
-);
-
-const mockedImage = jest.fn();
+jest.mock('@/components/PostModal');
+jest.mock('@/components/PostDetail');
+jest.mock('@/components/ui/ModalPortal');
+jest.mock('@/hooks/posts');
 
 describe('PostListCard', () => {
   const fakeSimplePost = fakeSimplePosts[0];
-  const { userImage, username, image, createdAt, likes, text } = fakeSimplePost;
+  const { userImage, username, image: imageUrl, text } = fakeSimplePost;
   const priority = true;
 
-  it('should render correctly', () => {
+  beforeEach(() => {
+    (ActionBar as jest.Mock).mockImplementation(
+      ({ children }: { children: React.ReactNode }) => children
+    );
+    (ModalPortal as jest.Mock).mockImplementation(
+      ({ children }: { children: React.ReactNode }) => children
+    );
+    (PostModal as jest.Mock).mockImplementation(
+      ({ children }: { children: React.ReactNode }) => children
+    );
+    (usePosts as jest.Mock).mockImplementation(() => ({
+      postComment: () => {},
+    }));
+  });
+
+  afterEach(() => {
+    (ActionBar as jest.Mock).mockReset();
+    (ModalPortal as jest.Mock).mockReset();
+    (PostModal as jest.Mock).mockReset();
+    (PostDetail as jest.Mock).mockReset();
+    (usePosts as jest.Mock).mockReset();
+  });
+
+  it('should correctly render the component with provided props', () => {
     render(<PostListCard post={fakeSimplePost} priority={priority} />);
+    const image = screen.getByRole('img') as HTMLImageElement;
 
     expect(PostUserAvatar).toHaveBeenCalledTimes(1);
     expect((PostUserAvatar as jest.Mock).mock.calls[0][0].userImage).toBe(
@@ -44,14 +56,55 @@ describe('PostListCard', () => {
     expect((PostUserAvatar as jest.Mock).mock.calls[0][0].username).toBe(
       username
     );
-    expect(mockedImage).toHaveBeenCalledTimes(1);
-    expect(mockedImage.mock.calls[0][0]).toBe(image);
-    expect(mockedImage.mock.calls[0][1]).toBe(priority);
+    const imageUrlString = imageUrl.split('/')[1];
+    expect(image.src).toMatch(imageUrlString);
     expect(ActionBar).toBeCalledTimes(1);
     expect((ActionBar as jest.Mock).mock.calls[0][0].post).toEqual(
       fakeSimplePost
     );
+    expect(screen.getByText(username)).toBeInTheDocument();
+    expect(screen.getByText(text)).toBeInTheDocument();
   });
 
-  //
+  it("should not display 'View All comments'string when the length of comments less than 2", () => {
+    const comments = 1;
+    const expectedString = `View all ${comments} comments`;
+    render(
+      <PostListCard
+        post={{ ...fakeSimplePost, comments }}
+        priority={priority}
+      />
+    );
+
+    expect(screen.queryByText(expectedString)).toBeNull();
+  });
+
+  it("should  display 'View All comments'string when the length of comments greater than or equal 2", () => {
+    const comments = 2;
+    const expectedString = `View all ${comments} comments`;
+    render(
+      <PostListCard
+        post={{ ...fakeSimplePost, comments }}
+        priority={priority}
+      />
+    );
+
+    expect(screen.getByText(expectedString)).toBeInTheDocument();
+  });
+
+  it('should not invoke PostDetail component when a post Image is not clicked', () => {
+    render(<PostListCard post={fakeSimplePost} priority={priority} />);
+
+    expect(PostDetail).not.toHaveBeenCalled();
+  });
+
+  it('should invoke PostDetail component when a post Image is clicked', async () => {
+    render(<PostListCard post={fakeSimplePost} priority={priority} />);
+    const image = screen.getByRole('img');
+
+    await userEvent.click(image);
+
+    expect(PostDetail).toHaveBeenCalledTimes(1);
+    expect(PostDetail).toHaveBeenCalledWith({ post: fakeSimplePost }, {});
+  });
 });

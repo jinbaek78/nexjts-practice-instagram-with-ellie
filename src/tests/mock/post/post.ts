@@ -1,4 +1,4 @@
-import { FullPost, SimplePost } from '@/model/post';
+import { Comment, FullPost, SimplePost } from '@/model/post';
 
 export const fakeSimplePost: SimplePost = {
   username: 'testUser1',
@@ -77,3 +77,9 @@ export const fakeFullPosts: FullPost[] = [
     createdAt: '2023-09',
   },
 ];
+
+export const fakeComment: Comment = {
+  comment: 'testComment',
+  username: 'testUsername',
+  image: '/testImage',
+};

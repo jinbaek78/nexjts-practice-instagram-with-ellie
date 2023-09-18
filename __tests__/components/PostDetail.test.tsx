@@ -1,19 +1,17 @@
-import {
-  render,
-  screen,
-  waitFor,
-  waitForElementToBeRemoved,
-} from '@testing-library/react';
+import { render } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import PostUserAvatar from '@/components/PostUserAvatar';
 import ActionBar from '@/components/ActionBar';
 import { fakeFullPost, fakeSimplePost } from '@/tests/mock/post/post';
-import { SWRConfig } from 'swr';
 import PostDetail from '@/components/PostDetail';
+import useFullPost from '@/hooks/post';
+import { Comment } from '@/model/post';
+import Avatar from '@/components/ui/Avatar';
 
 jest.mock('@/components/PostUserAvatar');
 jest.mock('@/components/ActionBar');
 jest.mock('@/components/ui/Avatar');
+jest.mock('@/hooks/post');
 jest.mock(
   'next/image',
   () =>
@@ -23,32 +21,54 @@ jest.mock(
 );
 
 const mockedImage = jest.fn();
+const postComment = (comment: Comment): Promise<any> | undefined => {
+  return undefined;
+};
 
 describe('PostDetail', () => {
-  it('should render correctly', async () => {
-    const { id, userImage, username, image, createdAt, likes } = fakeSimplePost;
-    const fetcher = jest.fn(async (url) => fakeFullPost);
-    render(
-      <SWRConfig value={{ fetcher, provider: () => new Map() }}>
-        <PostDetail post={fakeSimplePost} />
-      </SWRConfig>
-    );
-    await waitFor(() => {}, { timeout: 1 });
+  afterEach(() => {
+    (useFullPost as jest.Mock).mockReset();
+    (PostUserAvatar as jest.Mock).mockReset();
+    (ActionBar as jest.Mock).mockReset();
+    (Avatar as jest.Mock).mockReset();
+    (mockedImage as jest.Mock).mockClear();
+  });
+  it('renders correctly', async () => {
+    const { userImage, username, image } = fakeSimplePost;
+    (useFullPost as jest.Mock).mockImplementation(() => ({
+      post: fakeFullPost,
+      postComment,
+    }));
 
-    expect(fetcher).toHaveBeenCalledTimes(1);
-    expect(fetcher).toHaveBeenCalledWith(`/api/posts/${id}`);
-    expect(PostUserAvatar).toHaveBeenCalledTimes(2);
+    render(<PostDetail post={fakeSimplePost} />);
+
+    expect(mockedImage).toHaveBeenCalledTimes(1);
+    expect(mockedImage.mock.calls[0][0]).toBe(image);
+    expect(PostUserAvatar).toHaveBeenCalledTimes(1);
     expect((PostUserAvatar as jest.Mock).mock.calls[0][0].userImage).toBe(
       userImage
     );
     expect((PostUserAvatar as jest.Mock).mock.calls[0][0].username).toBe(
       username
     );
-    expect(mockedImage).toHaveBeenCalledTimes(2);
-    expect(mockedImage.mock.calls[0][0]).toBe(image);
-    expect(ActionBar).toHaveBeenCalledTimes(2);
+    expect(Avatar).toHaveBeenCalledTimes(fakeFullPost.comments.length);
+    expect(ActionBar).toHaveBeenCalledTimes(1);
     expect((ActionBar as jest.Mock).mock.calls[0][0].post).toEqual(
       fakeSimplePost
     );
+    expect((ActionBar as jest.Mock).mock.calls[0][0].onComment).toEqual(
+      postComment
+    );
+  });
+
+  it('does not display comments when there are no comments', () => {
+    (useFullPost as jest.Mock).mockImplementation(() => ({
+      post: { ...fakeFullPost, comments: null },
+      postComment,
+    }));
+
+    render(<PostDetail post={fakeSimplePost} />);
+
+    expect(Avatar).not.toHaveBeenCalled();
   });
 });

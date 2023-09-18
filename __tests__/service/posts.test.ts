@@ -1,4 +1,5 @@
 import {
+  addComment,
   dislikePost,
   getFollowingPostsOf,
   getLikedPostsOf,
@@ -246,6 +247,47 @@ describe('PostService', () => {
       expect(unset).toHaveBeenCalledWith(unsetArguments);
       expect(commit).toHaveBeenCalledTimes(1);
       expect(commit).toHaveBeenCalledWith();
+    });
+  });
+
+  describe('addComment', () => {
+    it.only('should correctly invoke client methods with the expected arguments', async () => {
+      (client.patch as jest.Mock).mockImplementation(() => ({
+        setIfMissing,
+      }));
+      const append = jest.fn().mockImplementation(() => ({ commit }));
+      const setIfMissing = jest.fn().mockImplementation(() => ({ append }));
+      const postId = 'testPost';
+      const userId = 'testUser';
+      const comment = 'testComment';
+      const setIfMissingArguments = { comments: [] };
+      const appendArguments = [
+        'comments',
+        [
+          {
+            comment,
+            author: {
+              _ref: userId,
+              _type: 'reference',
+            },
+          },
+        ],
+      ];
+      const commitArguments = { autoGenerateArrayKeys: true };
+
+      await addComment(postId, userId, comment);
+
+      expect(client.patch).toHaveBeenCalledTimes(1);
+      expect(client.patch).toHaveBeenCalledWith(postId);
+      expect(setIfMissing).toHaveBeenCalledTimes(1);
+      expect(setIfMissing).toHaveBeenCalledWith(setIfMissingArguments);
+      expect(append).toHaveBeenCalledTimes(1);
+      expect(append).toHaveBeenCalledWith(
+        appendArguments[0],
+        appendArguments[1]
+      );
+      expect(commit).toHaveBeenCalledTimes(1);
+      expect(commit).toHaveBeenCalledWith(commitArguments);
     });
   });
 });
