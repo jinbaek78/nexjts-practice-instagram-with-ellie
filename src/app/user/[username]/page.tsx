@@ -14,11 +14,9 @@ type Props = {
 const getUser = cache(async (username: string) => getUserForProfile(username));
 
 export default async function UserPage({ params: { username } }: Props) {
-  console.log('UserPage called: with: username: ', username);
   const user = await getUser(username);
 
   if (!user) {
-    console.log('there is no user!');
     NotFound();
   }
 
