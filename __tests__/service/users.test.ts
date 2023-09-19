@@ -1,10 +1,12 @@
 import { client } from '@/service/sanity';
 import {
   addBookmark,
+  follow,
   getUserByUsername,
   getUserForProfile,
   removeBookmark,
   searchUsers,
+  unfollow,
 } from '@/service/user';
 import {
   fakeProfileUser,
@@ -17,6 +19,7 @@ jest.mock('@/service/sanity', () => ({
   client: {
     fetch: jest.fn(),
     patch: jest.fn(),
+    transaction: jest.fn(),
   },
 }));
 
@@ -28,6 +31,7 @@ describe('Users Service', () => {
   afterEach(() => {
     (client.patch as jest.Mock).mockReset();
     (client.fetch as jest.Mock).mockReset();
+    (client.transaction as jest.Mock).mockReset();
   });
 
   describe('getUserByUsername', () => {
@@ -91,12 +95,19 @@ describe('Users Service', () => {
         async () => fakeProfileUser
       );
       const fetchQuery = `*[_type == "user" && username == "${username}"]`;
+      const nextTagOptions = {
+        next: { tags: [`profile/${username}`] },
+      };
 
       await getUserForProfile(username);
 
       expect(client.fetch).toHaveBeenCalledTimes(1);
       expect((client.fetch as jest.Mock).mock.calls[0][0]).toContain(
         fetchQuery
+      );
+      expect((client.fetch as jest.Mock).mock.calls[0][1]).toBe(undefined);
+      expect((client.fetch as jest.Mock).mock.calls[0][2]).toEqual(
+        nextTagOptions
       );
     });
 
@@ -156,6 +167,14 @@ describe('Users Service', () => {
       expect(commit).toHaveBeenCalledTimes(1);
       expect(commit).toHaveBeenCalledWith(commitArguments);
     });
+  });
+
+  describe('removeBookmark', () => {
+    const commit = jest.fn();
+
+    afterEach(() => {
+      commit.mockClear();
+    });
 
     it('should correctly invoke client methods with the expected arguments', async () => {
       const unset = jest.fn().mockImplementation(() => ({ commit }));
@@ -174,6 +193,116 @@ describe('Users Service', () => {
       expect(unset).toHaveBeenCalledWith(unsetArguments);
       expect(commit).toHaveBeenCalledTimes(1);
       expect(commit).toHaveBeenCalledWith();
+    });
+  });
+
+  describe('follow', () => {
+    const commit = jest.fn();
+
+    afterEach(() => {
+      commit.mockClear();
+    });
+
+    it('should correctly invoke client methods with the expected arguments', async () => {
+      const append = jest.fn();
+      const setIfMissing = jest.fn(() => ({ append }));
+      const testUser = { setIfMissing };
+      (client.transaction as jest.Mock).mockReturnThis();
+      (client.patch as jest.Mock).mockImplementationOnce(
+        (myId: string, callback: (user: typeof testUser) => void) => {
+          callback(testUser);
+          return {
+            patch: client.patch,
+          };
+        }
+      );
+      (client.patch as jest.Mock).mockImplementationOnce(
+        (myId: string, callback: (user: typeof testUser) => void) => {
+          callback(testUser);
+          return { commit };
+        }
+      );
+      (client.patch as jest.Mock).mockImplementationOnce(() => ({ commit }));
+      const myId = 'testMyId';
+      const targetId = 'testTargetId';
+      const commitOptions = { autoGenerateArrayKeys: true };
+      const setIfMissingFirstArguments = { following: [] };
+      const setIfMissingSecondArguments = { followers: [] };
+      const appendFirstArguments = [
+        'following',
+        [{ _ref: targetId, _type: 'reference' }],
+      ];
+      const appendSecondArguments = [
+        'followers',
+        [{ _ref: myId, _type: 'reference' }],
+      ];
+
+      await follow(myId, targetId);
+
+      expect(client.transaction).toHaveBeenCalledTimes(1);
+      expect(client.transaction).toHaveBeenCalledWith();
+      expect(client.patch).toHaveBeenCalledTimes(2);
+      expect((client.patch as jest.Mock).mock.calls[0][0]).toBe(myId);
+      expect(setIfMissing).toHaveBeenCalledTimes(2);
+      expect((setIfMissing as jest.Mock).mock.calls[0][0]).toEqual(
+        setIfMissingFirstArguments
+      );
+      expect((setIfMissing as jest.Mock).mock.calls[1][0]).toEqual(
+        setIfMissingSecondArguments
+      );
+      expect(append).toHaveBeenCalledTimes(2);
+      expect(append.mock.calls[0][0]).toEqual(appendFirstArguments[0]);
+      expect(append.mock.calls[0][1]).toEqual(appendFirstArguments[1]);
+      expect(append.mock.calls[1][0]).toEqual(appendSecondArguments[0]);
+      expect(append.mock.calls[1][1]).toEqual(appendSecondArguments[1]);
+      expect(commit).toHaveBeenCalledTimes(1);
+      expect(commit).toHaveBeenCalledWith(commitOptions);
+    });
+  });
+
+  describe('unfollow', () => {
+    const commit = jest.fn();
+
+    afterEach(() => {
+      commit.mockClear();
+    });
+
+    it('should correctly invoke client methods with the expected arguments', async () => {
+      const unset = jest.fn();
+      const testUser = { unset };
+      (client.transaction as jest.Mock).mockReturnThis();
+      (client.patch as jest.Mock).mockImplementationOnce(
+        (myId: string, callback: (user: typeof testUser) => void) => {
+          callback(testUser);
+          return {
+            patch: client.patch,
+          };
+        }
+      );
+      (client.patch as jest.Mock).mockImplementationOnce(
+        (myId: string, callback: (user: typeof testUser) => void) => {
+          callback(testUser);
+          return { commit };
+        }
+      );
+      (client.patch as jest.Mock).mockImplementationOnce(() => ({ commit }));
+      const myId = 'testMyId';
+      const targetId = 'testTargetId';
+      const commitOptions = { autoGenerateArrayKeys: true };
+      const unsetFirstArguments = [`following[_ref=="${targetId}"]`];
+      const unsetSecondArguments = [`followers[_ref=="${myId}"]`];
+
+      await unfollow(myId, targetId);
+
+      expect(client.transaction).toHaveBeenCalledTimes(1);
+      expect(client.transaction).toHaveBeenCalledWith();
+      expect(client.patch).toHaveBeenCalledTimes(2);
+      expect((client.patch as jest.Mock).mock.calls[0][0]).toBe(myId);
+      expect(unset).toHaveBeenCalledTimes(2);
+      expect(unset.mock.calls[0][0]).toEqual(unsetFirstArguments);
+      expect(unset.mock.calls[1][0]).toEqual(unsetSecondArguments);
+      expect(commit).toHaveBeenCalledTimes(1);
+      expect(commit).toHaveBeenCalledWith(commitOptions);
     });
   });
 });

@@ -1,5 +1,5 @@
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
-import { addBookmark, follow, removeBookmark, unfollow } from '@/service/user';
+import { follow, unfollow } from '@/service/user';
 import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
 
@@ -11,7 +11,6 @@ export async function PUT(req: NextRequest) {
     return new NextResponse('Authentication Error', { status: 401 });
   }
   const { id: targetId, follow: isFollow } = await req.json();
-  console.log(targetId, isFollow);
 
   if (!targetId || isFollow === undefined) {
     return new NextResponse('Bad request', { status: 400 });

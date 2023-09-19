@@ -58,6 +58,10 @@ describe('PostService', () => {
   || author._ref in *[_type == "user" && username == "${username}"].following[]._ref]
   | order(_createdAt desc){${simplePostProjection}}
   `;
+  const cacheOptions = {
+    cache: 'no-store',
+  };
+  const { id } = fakeFullPost;
 
   afterEach(() => {
     (client.patch as jest.Mock).mockReset();
@@ -101,7 +105,6 @@ describe('PostService', () => {
   });
 
   describe('getPost', () => {
-    const { id } = fakeFullPost;
     it('should invoke fetch and urlFor method with correct query', async () => {
       (client.fetch as jest.Mock).mockImplementation(async () => fakeFullPost);
       const result = await getPost(id);
@@ -122,7 +125,6 @@ describe('PostService', () => {
   });
 
   describe('getPostsOf', () => {
-    const { id } = fakeFullPost;
     it('should invoke fetch and urlFor method with correct query', async () => {
       (client.fetch as jest.Mock).mockImplementation(async () => [
         fakeFullPost,
@@ -140,13 +142,16 @@ describe('PostService', () => {
       expect((client.fetch as jest.Mock).mock.calls[0][0]).toContain(
         simplePostProjection
       );
+      expect((client.fetch as jest.Mock).mock.calls[0][1]).toBe(undefined);
+      expect((client.fetch as jest.Mock).mock.calls[0][2]).toEqual(
+        cacheOptions
+      );
 
       expect(result).toEqual([{ ...fakeFullPost, image: undefined }]);
     });
   });
 
   describe('getLikedPostsOf', () => {
-    const { id } = fakeFullPost;
     it('should invoke fetch and urlFor method with correct query', async () => {
       (client.fetch as jest.Mock).mockImplementation(async () => [
         fakeFullPost,
@@ -164,13 +169,15 @@ describe('PostService', () => {
       expect((client.fetch as jest.Mock).mock.calls[0][0]).toContain(
         simplePostProjection
       );
-
+      expect((client.fetch as jest.Mock).mock.calls[0][1]).toBe(undefined);
+      expect((client.fetch as jest.Mock).mock.calls[0][2]).toEqual(
+        cacheOptions
+      );
       expect(result).toEqual([{ ...fakeFullPost, image: undefined }]);
     });
   });
 
   describe('getSavedPostsOf', () => {
-    const { id } = fakeFullPost;
     it('should invoke fetch and urlFor method with correct query', async () => {
       (client.fetch as jest.Mock).mockImplementation(async () => [
         fakeFullPost,
@@ -187,6 +194,10 @@ describe('PostService', () => {
       );
       expect((client.fetch as jest.Mock).mock.calls[0][0]).toContain(
         simplePostProjection
+      );
+      expect((client.fetch as jest.Mock).mock.calls[0][1]).toBe(undefined);
+      expect((client.fetch as jest.Mock).mock.calls[0][2]).toEqual(
+        cacheOptions
       );
 
       expect(result).toEqual([{ ...fakeFullPost, image: undefined }]);
@@ -251,7 +262,7 @@ describe('PostService', () => {
   });
 
   describe('addComment', () => {
-    it.only('should correctly invoke client methods with the expected arguments', async () => {
+    it('should correctly invoke client methods with the expected arguments', async () => {
       (client.patch as jest.Mock).mockImplementation(() => ({
         setIfMissing,
       }));

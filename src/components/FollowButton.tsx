@@ -2,7 +2,7 @@
 import { ProfileUser } from '@/model/user';
 import Button from './ui/Button';
 import useMe from '@/hooks/me';
-import { useState } from 'react';
+import React from 'react';
 import { PulseLoader } from 'react-spinners';
 import revalidateProfileUser from '@/actions/action';
 
@@ -12,8 +12,7 @@ type Props = {
 export default function FollowButton({ user }: Props) {
   const { username } = user;
   const { user: loggedInUser, toggleFollow } = useMe();
-  const [isFetching, setIsFetching] = useState(false);
-
+  const [isFetching, setIsFetching] = React.useState(false);
   const showButton = loggedInUser && loggedInUser.username !== username;
   const following =
     loggedInUser &&

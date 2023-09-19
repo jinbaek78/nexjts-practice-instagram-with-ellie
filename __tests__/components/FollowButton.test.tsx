@@ -11,9 +11,16 @@ import {
 import Button from '@/components/ui/Button';
 import useMe from '@/hooks/me';
 import { HomeUser, ProfileUser } from '@/model/user';
+import revalidateProfileUser from '@/actions/action';
+import { PulseLoader } from 'react-spinners';
+import React from 'react';
 
 jest.mock('@/components/ui/Button');
 jest.mock('@/hooks/me');
+jest.mock('@/actions/action');
+jest.mock('react-spinners');
+
+jest.spyOn(React, 'useState');
 
 describe('FollowButton', () => {
   const UNFOLLOW_TEXT = 'Unfollow';
@@ -23,11 +30,13 @@ describe('FollowButton', () => {
   beforeEach(() => {
     fetcher.mockImplementation(async () => fakeHomeUser);
     (useMe as jest.Mock).mockImplementation(() => ({ user: fakeHomeUser }));
+    (React.useState as jest.Mock).mockImplementation(() => [false, () => {}]);
   });
   afterEach(() => {
     (Button as jest.Mock).mockReset();
     (useMe as jest.Mock).mockReset();
     fetcher.mockReset();
+    (React.useState as jest.Mock).mockReset();
   });
   it('should not invoke Button component when a user is logged out', async () => {
     (useMe as jest.Mock).mockImplementation(() => ({ user: undefined }));
@@ -67,5 +76,25 @@ describe('FollowButton', () => {
 
     expect(Button).toHaveBeenCalledTimes(1);
     expect((Button as jest.Mock).mock.calls[0][0].text).toBe(FOLLOW_TEXT);
+  });
+
+  it("should not invoke PulseLoader when the 'isFetching' flag is set to false", async () => {
+    const user = fakeProfileUsers[1];
+    render(<FollowButton user={user} />);
+
+    await waitFor(() => {}, { timeout: 1 });
+
+    expect(PulseLoader).not.toHaveBeenCalled();
+  });
+
+  it("should invoke PulseLoader when the 'isFetching' flag is set to true", async () => {
+    (React.useState as jest.Mock).mockImplementation(() => [true, () => {}]);
+    const user = fakeProfileUsers[1];
+
+    render(<FollowButton user={user} />);
+
+    await waitFor(() => {
+      expect(PulseLoader).toHaveBeenCalledTimes(1);
+    });
   });
 });

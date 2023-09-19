@@ -22,7 +22,7 @@ describe('useMe hook', () => {
   });
 
   // Test the return structure of the useMe hook
-  it('should return user information, isLoading status, error flag and setBookmark function correctly', async () => {
+  it('should return user information, isLoading status, flag and setBookmark function and toggleFollow function correctly', async () => {
     const functionType = 'function';
     const { result } = renderHook(() => useMe(), {
       wrapper: SWRConfigProvider,
@@ -31,11 +31,13 @@ describe('useMe hook', () => {
       expect(result.current.isLoading).toBe(false);
     });
 
-    const { user, isLoading, error, setBookmark } = result.current;
+    const { user, isLoading, error, setBookmark, toggleFollow } =
+      result.current;
     expect(user).toEqual(fakeHomeUsers[0]);
     expect(isLoading).toEqual(false);
     expect(error).toBe(undefined);
     expect(typeof setBookmark).toBe(functionType);
+    expect(typeof toggleFollow).toBe(functionType);
   });
 
   // Test that a postId gets added to bookmarks
@@ -97,6 +99,32 @@ describe('useMe hook', () => {
 
     act(() => {
       setBookmark(postId, defaultBookmarkState);
+    });
+
+    expect(fetch).toHaveBeenCalledTimes(1);
+    expect(fetch).toHaveBeenCalledWith(fetchURL, fetchOption);
+  });
+
+  // Test that the fetch function gets called with the correct parameters
+  it('should invoke a fetch with correct url and options after invoking the toggleFollow function', async () => {
+    const fetchURL = '/api/follow';
+    const method = 'PUT';
+    const targetId = 'testTargetId';
+    const isFollow = false;
+    const fetchOption = {
+      method,
+      body: JSON.stringify({ id: targetId, follow: isFollow }),
+    };
+    const { result } = renderHook(() => useMe(), {
+      wrapper: SWRConfigProvider,
+    });
+    await waitFor(() => {
+      expect(result.current.isLoading).toBe(false);
+    });
+    const { toggleFollow } = result.current;
+
+    act(() => {
+      toggleFollow(targetId, isFollow);
     });
 
     expect(fetch).toHaveBeenCalledTimes(1);
