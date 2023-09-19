@@ -48,7 +48,9 @@ export async function getPostsOf(username: string) {
       `*[_type == "post" && author->username == "${username}"]
     | order(_createdAt desc) {
       ${simplePostProjection}
-    }`
+    }`,
+      undefined,
+      { cache: 'no-store' }
     )
     .then(mapPosts);
 }
@@ -59,7 +61,9 @@ export async function getLikedPostsOf(username: string) {
       `*[_type == "post" && "${username}" in likes[]->username]
     | order(_createdAt desc) {
       ${simplePostProjection}
-    }`
+    }`,
+      undefined,
+      { cache: 'no-store' }
     )
     .then(mapPosts);
 }
@@ -70,7 +74,9 @@ export async function getSavedPostsOf(username: string) {
       `*[_type == "post" && _id in *[_type=="user" && username=="${username}"].bookmarks[]._ref]
     | order(_createdAt desc) {
       ${simplePostProjection}
-    }`
+    }`,
+      undefined,
+      { cache: 'no-store' }
     )
     .then(mapPosts);
 }

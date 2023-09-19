@@ -2,6 +2,7 @@
 import { ProfileUser } from '@/model/user';
 import Button from './ui/Button';
 import useMe from '@/hooks/me';
+import { useRouter } from 'next/navigation';
 
 type Props = {
   user: ProfileUser;
@@ -9,6 +10,8 @@ type Props = {
 export default function FollowButton({ user }: Props) {
   const { username } = user;
   const { user: loggedInUser, toggleFollow } = useMe();
+  const router = useRouter();
+  console.log(user);
 
   const showButton = loggedInUser && loggedInUser.username !== username;
   const following =
@@ -17,7 +20,7 @@ export default function FollowButton({ user }: Props) {
   const text = following ? 'Unfollow' : 'Follow';
 
   const handleFollow = () => {
-    toggleFollow(user.id, !following);
+    toggleFollow(user.id, !following).then(() => router.refresh());
   };
   return (
     <>

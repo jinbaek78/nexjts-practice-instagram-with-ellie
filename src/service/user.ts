@@ -57,23 +57,52 @@ export async function searchUsers(keyword?: string) {
 }
 
 export async function getUserForProfile(username: string) {
-  return client
-    .fetch(
-      `*[_type == "user" && username == "${username}"][0]{
-      ...,
-      "id": _id,
-      "following": count(following),
-      "followers": count(followers),
-      "posts": count(*[_type == "post" && author->username == "${username}"])
-    }`
-    )
-    .then((user) => ({
-      ...user,
-      following: user.following ?? 0,
-      followers: user.followers ?? 0,
-      posts: user.posts ?? 0,
-    }));
+  console.time('profile');
+  const user = await client.fetch(
+    `*[_type == "user" && username == "${username}"][0]{
+    ...,
+    "id": _id,
+    "following": count(following),
+    "followers": count(followers),
+    "posts": count(*[_type == "post" && author->username == "${username}"])
+  }`,
+    undefined,
+    { cache: 'no-store' }
+  );
+
+  console.timeEnd('profile');
+
+  return {
+    ...user,
+    following: user.following ?? 0,
+    followers: user.followers ?? 0,
+    posts: user.posts ?? 0,
+  };
 }
+// export async function getUserForProfile(username: string) {
+//   console.time('profile');
+//   return client
+//     .fetch(
+//       `*[_type == "user" && username == "${username}"][0]{
+//       ...,
+//       "id": _id,
+//       "following": count(following),
+//       "followers": count(followers),
+//       "posts": count(*[_type == "post" && author->username == "${username}"])
+//     }`
+//     )
+//     .then((user) => {
+//       console.log('user profile: ', user);
+//       console.timeEnd('profile');
+
+//       return {
+//         ...user,
+//         following: user.following ?? 0,
+//         followers: user.followers ?? 0,
+//         posts: user.posts ?? 0,
+//       };
+//     });
+// }
 
 export async function addBookmark(userId: string, postId: string) {
   return client
