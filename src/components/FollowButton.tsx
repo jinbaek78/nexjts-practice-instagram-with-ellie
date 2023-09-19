@@ -2,9 +2,9 @@
 import { ProfileUser } from '@/model/user';
 import Button from './ui/Button';
 import useMe from '@/hooks/me';
-import { useRouter } from 'next/navigation';
-import { useState, useTransition } from 'react';
+import { useState } from 'react';
 import { PulseLoader } from 'react-spinners';
+import revalidateProfileUser from '@/actions/action';
 
 type Props = {
   user: ProfileUser;
@@ -12,10 +12,7 @@ type Props = {
 export default function FollowButton({ user }: Props) {
   const { username } = user;
   const { user: loggedInUser, toggleFollow } = useMe();
-  const router = useRouter();
-  const [isPending, startTransition] = useTransition();
   const [isFetching, setIsFetching] = useState(false);
-  const isUpdating = isPending || isFetching;
 
   const showButton = loggedInUser && loggedInUser.username !== username;
   const following =
@@ -27,22 +24,20 @@ export default function FollowButton({ user }: Props) {
     setIsFetching(true);
     await toggleFollow(user.id, !following);
     setIsFetching(false);
-    startTransition(() => {
-      router.refresh();
-    });
+    revalidateProfileUser(username);
   };
   return (
     <>
       {showButton && (
         <div className="relative">
-          {isUpdating && (
+          {isFetching && (
             <div className="absolute z-20 inset-0 flex justify-center items-center">
               <PulseLoader size={6} />
             </div>
           )}
 
           <Button
-            disabled={isUpdating}
+            disabled={isFetching}
             text={text}
             onClick={handleFollow}
             red={text === 'Unfollow'}

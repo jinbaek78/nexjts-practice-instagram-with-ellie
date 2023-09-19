@@ -68,7 +68,7 @@ export async function getUserForProfile(username: string) {
     }`,
       undefined,
       {
-        cache: 'no-store',
+        next: { tags: [`profile/${username}`] },
       }
     )
     .then((user) => ({
