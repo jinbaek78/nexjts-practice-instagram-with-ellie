@@ -9,8 +9,13 @@ import { signIn, useSession } from 'next-auth/react';
 type Props = {
   post: SimplePost;
   priority: boolean;
+  cacheKey: string;
 };
-export default function PostGridCard({ post, priority = false }: Props) {
+export default function PostGridCard({
+  post,
+  priority = false,
+  cacheKey,
+}: Props) {
   const { image, username } = post;
   const { data: session } = useSession();
   const [openModal, setOpenModal] = useState(false);
@@ -38,7 +43,7 @@ export default function PostGridCard({ post, priority = false }: Props) {
       {openModal && (
         <ModalPortal>
           <PostModal onClose={() => setOpenModal(false)}>
-            <PostDetail post={post} />
+            <PostDetail post={post} cacheKey={cacheKey} />
           </PostModal>
         </ModalPortal>
       )}
