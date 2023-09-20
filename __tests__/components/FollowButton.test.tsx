@@ -26,17 +26,22 @@ describe('FollowButton', () => {
   const UNFOLLOW_TEXT = 'Unfollow';
   const FOLLOW_TEXT = 'Follow';
   const fetcher = jest.fn(async () => fakeHomeUser);
+  const toggleFollow = jest.fn(async () => {});
 
   beforeEach(() => {
     fetcher.mockImplementation(async () => fakeHomeUser);
-    (useMe as jest.Mock).mockImplementation(() => ({ user: fakeHomeUser }));
+    (useMe as jest.Mock).mockImplementation(() => ({
+      user: fakeHomeUser,
+      toggleFollow,
+    }));
     (React.useState as jest.Mock).mockImplementation(() => [false, () => {}]);
   });
   afterEach(() => {
     (Button as jest.Mock).mockReset();
     (useMe as jest.Mock).mockReset();
-    fetcher.mockReset();
     (React.useState as jest.Mock).mockReset();
+    fetcher.mockReset();
+    toggleFollow.mockClear();
   });
   it('should not invoke Button component when a user is logged out', async () => {
     (useMe as jest.Mock).mockImplementation(() => ({ user: undefined }));
@@ -96,5 +101,36 @@ describe('FollowButton', () => {
     await waitFor(() => {
       expect(PulseLoader).toHaveBeenCalledTimes(1);
     });
+  });
+
+  it("should toggle the user's follow status correctly when the follow/unfollow button is clicked.", async () => {
+    const setIsFetching = jest.fn();
+    (React.useState as jest.Mock).mockImplementation(() => [
+      true,
+      setIsFetching,
+    ]);
+    (Button as jest.Mock).mockImplementation(({ disabled, text, onClick }) => {
+      return <button onClick={onClick}></button>;
+    });
+    const user = fakeProfileUsers[1];
+    const { username, id } = user;
+    const following = fakeHomeUser.following.find(
+      (item) => item.username === username
+    );
+    render(<FollowButton user={user} />);
+    const button = screen.getByRole('button');
+
+    await userEvent.click(button);
+
+    expect(Button).toHaveBeenCalledTimes(1);
+    expect(setIsFetching).toHaveBeenCalledTimes(2);
+    // expect(setIsFetching.mock.calls[0][0]).toBe(true);
+    expect(setIsFetching).toHaveBeenNthCalledWith(1, true);
+    expect(setIsFetching).toHaveBeenNthCalledWith(2, false);
+    // expect(setIsFetching.mock.calls[1][0]).toBe(false);
+    expect(toggleFollow).toHaveBeenCalledTimes(1);
+    expect(toggleFollow).toHaveBeenCalledWith(id, !following);
+    expect(revalidateProfileUser).toHaveBeenCalledTimes(1);
+    expect(revalidateProfileUser).toHaveBeenCalledWith(username);
   });
 });

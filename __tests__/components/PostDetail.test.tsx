@@ -1,7 +1,8 @@
+import '@/tests/mock/module/ActionBar';
+import ActionBar from '@/tests/mock/module/ActionBar';
 import { render } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import PostUserAvatar from '@/components/PostUserAvatar';
-import ActionBar from '@/components/ActionBar';
 import { fakeFullPost, fakeSimplePost } from '@/tests/mock/post/post';
 import PostDetail from '@/components/PostDetail';
 import useFullPost from '@/hooks/post';
@@ -9,7 +10,6 @@ import { Comment } from '@/model/post';
 import Avatar from '@/components/ui/Avatar';
 
 jest.mock('@/components/PostUserAvatar');
-jest.mock('@/components/ActionBar');
 jest.mock('@/components/ui/Avatar');
 jest.mock('@/hooks/post');
 jest.mock(

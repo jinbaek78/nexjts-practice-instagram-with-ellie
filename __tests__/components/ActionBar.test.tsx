@@ -1,3 +1,5 @@
+import '@/tests/mock/module/usePosts';
+import usePosts from '@/tests/mock/module/usePosts';
 import {
   render,
   screen,
@@ -17,7 +19,6 @@ import { parseDate } from '@/util/date';
 import { fakeComment, fakeSimplePosts } from '@/tests/mock/post/post';
 import ActionBar from '@/components/ActionBar';
 import ToggleButton from '@/components/ui/ToggleButton';
-import usePosts from '@/hooks/posts';
 import useMe from '@/hooks/me';
 import { fakeHomeUsers } from '@/tests/mock/user/users';
 import { Comment } from '@/model/post';
@@ -32,7 +33,6 @@ jest.mock('@/components/ui/icons', () => ({
 jest.mock('@/util/date');
 jest.mock('@/components/ui/ToggleButton');
 jest.mock('next-auth/react');
-jest.mock('@/hooks/posts');
 jest.mock('@/hooks/me');
 jest.mock('@/components/CommentForm');
 

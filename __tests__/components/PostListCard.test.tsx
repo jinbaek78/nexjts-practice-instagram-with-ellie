@@ -1,4 +1,6 @@
+import '@/tests/mock/module/usePosts';
 import '@/tests/mock/module/ActionBar';
+import usePosts from '@/tests/mock/module/usePosts';
 import ActionBar from '@/tests/mock/module/ActionBar';
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
@@ -10,12 +12,10 @@ import PostModal from '@/components/PostModal';
 import PostDetail from '@/components/PostDetail';
 import ModalPortal from '@/components/ui/ModalPortal';
 import userEvent from '@testing-library/user-event';
-import usePosts from '@/hooks/posts';
 jest.mock('@/components/PostUserAvatar');
 jest.mock('@/components/PostModal');
 jest.mock('@/components/PostDetail');
 jest.mock('@/components/ui/ModalPortal');
-jest.mock('@/hooks/posts');
 
 describe('PostListCard', () => {
   const fakeSimplePost = fakeSimplePosts[0];

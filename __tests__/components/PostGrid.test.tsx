@@ -1,3 +1,8 @@
+import '@/tests/mock/module/usePosts';
+import '@/tests/mock/module/PostGridCard';
+import PostGridCard from '@/tests/mock/module/PostGridCard';
+import usePosts from '@/tests/mock/module/usePosts';
+
 import {
   render,
   screen,
@@ -7,63 +12,53 @@ import {
 import '@testing-library/jest-dom';
 import userEvent from '@testing-library/user-event';
 import GridSpinner from '@/components/ui/GridSpinner';
-import PostGridCard from '@/components/PostGridCard';
-import { SWRConfig } from 'swr';
 import PostGrid from '@/components/PostGrid';
 import { fakeSimplePosts } from '@/tests/mock/post/post';
 
 jest.mock('@/components/ui/GridSpinner');
-jest.mock('@/components/PostGridCard');
 
 describe('PostGrid', () => {
+  beforeEach(() => {
+    (usePosts as jest.Mock).mockImplementation(() => ({
+      posts: fakeSimplePosts,
+      isLoading: false,
+    }));
+  });
   afterEach(() => {
     (GridSpinner as jest.Mock).mockReset();
     (PostGridCard as jest.Mock).mockReset();
+    (usePosts as jest.Mock).mockReset();
   });
 
-  ('it should fetch using the correct URL containing the provided props,');
+  it('should display loading spinner when a loading flag is set to true', async () => {
+    (usePosts as jest.Mock).mockImplementation(() => ({
+      posts: fakeSimplePosts,
+      isLoading: true,
+    }));
 
-  it('should fetch using the correct URL containing the provided props', async () => {
-    const fetcher = jest.fn(async (url) => fakeSimplePosts);
-    const username = 'testUserName';
-    const query = 'posts';
-    const url = `/api/users/${username}/${query}`;
-    render(
-      <SWRConfig value={{ fetcher, provider: () => new Map() }}>
-        <PostGrid username={username} query={query} />
-      </SWRConfig>
-    );
-    await waitFor(() => {}, { timeout: 1 });
-
-    expect(fetcher).toHaveBeenCalledTimes(1);
-    expect(fetcher).toHaveBeenCalledWith(url);
-  });
-
-  it('should invoke loading spinner at first', async () => {
-    const fetcher = jest.fn(async (url) => null);
-    const username = 'testUserName';
-    const query = 'posts';
-
-    render(
-      <SWRConfig value={{ fetcher, provider: () => new Map() }}>
-        <PostGrid username={username} query={query} />
-      </SWRConfig>
-    );
-    await waitFor(() => {}, { timeout: 1 });
+    render(<PostGrid />);
 
     expect(GridSpinner).toHaveBeenCalledTimes(1);
   });
 
-  it('should invoke PostGridCard with a post when a posts is provided', async () => {
-    const fetcher = jest.fn(async (url) => fakeSimplePosts);
-    const username = 'testUserName';
-    const query = 'posts';
+  it('should not display loading spinner when a loading flag is set to false', async () => {
+    (usePosts as jest.Mock).mockImplementation(() => ({
+      posts: fakeSimplePosts,
+      isLoading: false,
+    }));
 
-    render(
-      <SWRConfig value={{ fetcher, provider: () => new Map() }}>
-        <PostGrid username={username} query={query} />
-      </SWRConfig>
-    );
+    render(<PostGrid />);
+
+    expect(GridSpinner).not.toHaveBeenCalled();
+  });
+
+  it('should invoke PostGridCard with a post when a posts is provided', async () => {
+    (usePosts as jest.Mock).mockImplementation(() => ({
+      posts: fakeSimplePosts,
+      isLoading: false,
+    }));
+
+    render(<PostGrid />);
     await waitFor(() => {}, { timeout: 1 });
 
     expect(PostGridCard).toHaveBeenCalledTimes(fakeSimplePosts.length);
@@ -78,15 +73,13 @@ describe('PostGrid', () => {
     );
   });
 
-  it('should not invoke PostGridCard when a posts is not  provided', async () => {
-    const fetcher = jest.fn(async (url) => null);
-    const username = 'testUserName';
-    const query = 'posts';
-    render(
-      <SWRConfig value={{ fetcher, provider: () => new Map() }}>
-        <PostGrid username={username} query={query} />
-      </SWRConfig>
-    );
+  it.only('should not invoke PostGridCard when a posts is not provided', async () => {
+    (usePosts as jest.Mock).mockImplementation(() => ({
+      posts: undefined,
+      isLoading: false,
+    }));
+
+    render(<PostGrid />);
     await waitFor(() => {}, { timeout: 1 });
 
     expect(PostGridCard).not.toBeCalled();

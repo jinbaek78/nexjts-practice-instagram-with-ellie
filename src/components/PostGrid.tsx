@@ -1,6 +1,4 @@
-import useSWR from 'swr';
 import GridSpinner from './ui/GridSpinner';
-import { SimplePost } from '@/model/post';
 import PostGridCard from './PostGridCard';
 import usePosts from '@/hooks/posts';
 

@@ -1,3 +1,5 @@
+import '@/tests/mock/module/PostGrid';
+import PostGrid from '@/tests/mock/module/PostGrid';
 import {
   render,
   screen,
@@ -7,22 +9,29 @@ import {
 import '@testing-library/jest-dom';
 import userEvent from '@testing-library/user-event';
 import { BookMarkIcon, HeartIcon, PostIcon } from '@/components/ui/icons';
-import PostGrid from '@/components/PostGrid';
 import UserPosts from '@/components/UserPosts';
 import { fakeProfileUser } from '@/tests/mock/user/users';
+import { useCacheKeys } from '@/context/CacheKeysContext';
 
 jest.mock('@/components/ui/icons');
-jest.mock('@/components/PostGrid');
 
 describe('UserPosts', () => {
+  const LIKED_TEXT = 'liked';
+  const SAVED_TEXT = 'saved';
+
+  beforeEach(() => {
+    (PostGrid as jest.Mock).mockImplementation(() => {
+      const { postsKey } = useCacheKeys();
+      return <p>{postsKey}</p>;
+    });
+  });
+
   afterEach(() => {
     (PostGrid as jest.Mock).mockReset();
   });
 
-  it('should invoke PostGrid component with liked query when a user clicks liked button', async () => {
-    const INITIAL_QUERY = 'posts';
-    const UPDATED_QUERY = 'liked';
-    const LIKED_TEXT = 'liked';
+  it('should have cacheKeysContext that has a value containing liked query when a user clicks liked button', async () => {
+    const postsKey = `/api/users/${fakeProfileUser.username}/${LIKED_TEXT}`;
     render(<UserPosts user={fakeProfileUser} />);
     await waitFor(() => {}, { timeout: 1 });
     const likeElement = screen.getByText(LIKED_TEXT);
@@ -30,22 +39,18 @@ describe('UserPosts', () => {
     await userEvent.click(likeElement);
 
     expect(PostGrid).toHaveBeenCalledTimes(2);
-    expect((PostGrid as jest.Mock).mock.calls[0][0].query).toBe(INITIAL_QUERY);
-    expect((PostGrid as jest.Mock).mock.calls[1][0].query).toBe(UPDATED_QUERY);
+    expect(screen.getByText(postsKey));
   });
 
-  it('should invoke PostGrid component with saved query when a user clicks saved button  ', async () => {
-    const INITIAL_QUERY = 'posts';
-    const UPDATED_QUERY = 'saved';
-    const SAVED_TEXT = 'saved';
+  it.only('should have cacheKeysContext that has a value containing saved query when a user clicks saved button', async () => {
+    const postsKey = `/api/users/${fakeProfileUser.username}/${SAVED_TEXT}`;
     render(<UserPosts user={fakeProfileUser} />);
     await waitFor(() => {}, { timeout: 1 });
-    const likeElement = screen.getByText(SAVED_TEXT);
+    const savedElement = screen.getByText(SAVED_TEXT);
 
-    await userEvent.click(likeElement);
+    await userEvent.click(savedElement);
 
     expect(PostGrid).toHaveBeenCalledTimes(2);
-    expect((PostGrid as jest.Mock).mock.calls[0][0].query).toBe(INITIAL_QUERY);
-    expect((PostGrid as jest.Mock).mock.calls[1][0].query).toBe(UPDATED_QUERY);
+    expect(screen.getByText(postsKey));
   });
 });

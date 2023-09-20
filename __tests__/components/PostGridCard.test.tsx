@@ -1,3 +1,5 @@
+import '@/tests/mock/module/PostDetail';
+import PostDetail from '@/tests/mock/module/PostDetail';
 import {
   render,
   screen,
@@ -12,19 +14,13 @@ import { signIn, useSession } from 'next-auth/react';
 import { fakeSession } from '@/tests/mock/user/session';
 import PostGridCard from '@/components/PostGridCard';
 import { fakeSimplePost } from '@/tests/mock/post/post';
-import PostDetail from '@/components/PostDetail';
 
 jest.mock('@/components/ui/ModalPortal');
 jest.mock('@/components/PostModal');
 jest.mock('@/components/PostModal');
-jest.mock('@/components/PostDetail');
 jest.mock('next-auth/react');
 
 describe('PostGridCard', () => {
-  //1. render correctly : with props: image, username
-  //2. redirects to signin page when a user is not logged in and clicks the post image
-  // 3. invoke ModalPortal when a user logged in and clicks the post image
-
   afterEach(() => {
     (signIn as jest.Mock).mockReset();
     (useSession as jest.Mock).mockReset();
