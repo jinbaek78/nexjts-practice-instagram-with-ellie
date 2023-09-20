@@ -7,8 +7,13 @@ import useFullPost from '@/hooks/post';
 
 type Props = {
   post: SimplePost;
+  onGridLikeClick?: (
+    post: SimplePost,
+    username: string,
+    like: boolean
+  ) => Promise<any>;
 };
-export default function PostDetail({ post }: Props) {
+export default function PostDetail({ post, onGridLikeClick }: Props) {
   const { id, userImage, username, image } = post;
   const { post: data, postComment } = useFullPost(id);
   const comments = data?.comments;
@@ -45,7 +50,11 @@ export default function PostDetail({ post }: Props) {
               )
             )}
         </ul>
-        <ActionBar post={post} onComment={postComment} />
+        <ActionBar
+          post={post}
+          onComment={postComment}
+          onGridLikeClick={onGridLikeClick}
+        />
       </div>
     </section>
   );

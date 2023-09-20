@@ -2,15 +2,14 @@ import useSWR from 'swr';
 import GridSpinner from './ui/GridSpinner';
 import { SimplePost } from '@/model/post';
 import PostGridCard from './PostGridCard';
+import usePostsGrid from '@/hooks/postsGrid';
 
 type Props = {
   username: string;
   query: string;
 };
 export default function PostGrid({ username, query }: Props) {
-  const { data: posts, isLoading: loading } = useSWR<SimplePost[]>(
-    `/api/users/${username}/${query}`
-  );
+  const { posts, isLoading: loading, setLike } = usePostsGrid(username, query);
 
   return (
     <div className="w-full text-center">
@@ -19,7 +18,11 @@ export default function PostGrid({ username, query }: Props) {
         {posts &&
           posts.map((post, index) => (
             <li key={post.id + index} className="w-full">
-              <PostGridCard post={post} priority={index < 6} />
+              <PostGridCard
+                post={post}
+                priority={index < 6}
+                onGridLikeClick={setLike}
+              />
             </li>
           ))}
       </ul>

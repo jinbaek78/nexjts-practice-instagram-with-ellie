@@ -13,17 +13,28 @@ import CommentForm from './CommentForm';
 
 type Props = {
   post: SimplePost;
-  children?: React.ReactNode;
   onComment: (comment: Comment) => void;
+  children?: React.ReactNode;
+  onGridLikeClick?: (
+    post: SimplePost,
+    username: string,
+    like: boolean
+  ) => Promise<any>;
 };
-export default function ActionBar({ post, children, onComment }: Props) {
+export default function ActionBar({
+  post,
+  children,
+  onComment,
+  onGridLikeClick,
+}: Props) {
   const { id, likes, createdAt } = post;
   const { user, setBookmark } = useMe();
   const liked = user ? likes.includes(user.username) : false;
   const bookmarked = user?.bookmarks.includes(id) ?? false;
   const { setLike } = usePosts();
+  const requestSetLike = onGridLikeClick ? onGridLikeClick : setLike;
   const handleLike = (like: boolean) => {
-    user && setLike(post, user.username, like);
+    user && requestSetLike(post, user.username, like);
   };
 
   const handleBookmark = (bookmark: boolean) => {
