@@ -87,14 +87,6 @@ export async function getSavedPostsOf(username: string) {
     .then(mapPosts);
 }
 
-function mapPosts(posts: SimplePost[]) {
-  return posts.map((post: SimplePost) => ({
-    ...post,
-    likes: post.likes ?? [],
-    image: urlFor(post.image),
-  }));
-}
-
 export async function likePost(postId: string, userId: string) {
   return client
     .patch(postId) //
@@ -133,4 +125,57 @@ export async function addComment(
       },
     ])
     .commit({ autoGenerateArrayKeys: true });
+}
+
+export async function publishPost(
+  imageFile: File,
+  text: string,
+  userId: string
+) {
+  return client.assets
+    .upload('image', imageFile) //
+    .then(({ _id: imageAssetId }) =>
+      client //
+        .create(
+          {
+            photo: {
+              _type: 'image',
+              asset: {
+                _ref: imageAssetId,
+                _type: 'reference',
+              },
+            },
+            ...makePostData(userId, text),
+          },
+          { autoGenerateArrayKeys: true }
+        )
+    );
+}
+
+function makePostData(userId: string, text: string) {
+  return {
+    _type: 'post',
+    author: {
+      _ref: userId,
+      _type: 'reference',
+    },
+    likes: [],
+    comments: [
+      {
+        author: {
+          _ref: userId,
+          _type: 'reference',
+        },
+        comment: text,
+      },
+    ],
+  };
+}
+
+function mapPosts(posts: SimplePost[]) {
+  return posts.map((post: SimplePost) => ({
+    ...post,
+    likes: post.likes ?? [],
+    image: urlFor(post.image),
+  }));
 }
