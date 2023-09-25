@@ -1,15 +1,11 @@
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { dislikePost, likePost } from '@/service/posts';
-import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function PUT(req: NextRequest) {
-  const session = await getServerSession(authOptions);
-  const user = session?.user;
+  const user = req.headers.get('user')
+    ? JSON.parse(req.headers.get('user') || '')
+    : null;
 
-  if (!user) {
-    return new NextResponse('Authentication Error', { status: 401 });
-  }
   const { id, like } = await req.json();
 
   if (!id || like === undefined) {

@@ -11,6 +11,9 @@ export const authOptions: NextAuthOptions = {
       clientSecret: process.env.GOOGLE_CLIENT_SECRET || '',
     }),
   ],
+  session: {
+    strategy: 'jwt',
+  },
   callbacks: {
     async signIn({ user: { id, name, image, email } }) {
       if (!email) {
