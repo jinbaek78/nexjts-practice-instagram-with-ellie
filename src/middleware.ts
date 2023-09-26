@@ -1,11 +1,5 @@
-// export { default } from 'next-auth/middleware';
-
 import { getToken } from 'next-auth/jwt';
 import { NextRequest, NextResponse } from 'next/server';
-
-// export const config = {
-//   matcher: ['/new', '/'],
-// };
 
 export async function middleware(req: NextRequest) {
   const token = await getToken({ req });
@@ -26,3 +20,16 @@ export async function middleware(req: NextRequest) {
 
   return NextResponse.next();
 }
+
+export const config = {
+  matcher: [
+    '/new',
+    '/',
+    '/api/bookmarks',
+    '/api/comments',
+    '/api/likes',
+    '/api/follow',
+    '/api/me',
+    '/api/posts/:path*',
+  ],
+};
