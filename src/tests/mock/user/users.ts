@@ -1,7 +1,15 @@
-import { HomeUser, ProfileUser, SearchUser } from '@/model/user';
+import { AuthUser, HomeUser, ProfileUser, SearchUser } from '@/model/user';
 
 const simpleUser1 = { username: 'simpleUser1', image: '/simpleUser1' };
 const simpleUser2 = { username: 'simpleUser2', image: '/simpleUser2' };
+
+export const fakeAuthUser: AuthUser = {
+  id: 'testId',
+  name: 'authUser',
+  username: 'authUsername',
+  email: 'authUsername@gmail.com',
+  image: '/image/authUsername',
+};
 
 export const fakeProfileUser: ProfileUser = {
   id: 'testId',

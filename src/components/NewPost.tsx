@@ -60,6 +60,7 @@ export default function NewPost({ user: { username, image } }: Props) {
           setError(`${res.status} ${res.statusText}`);
           return;
         }
+        console.log('router.push');
         router.push('/');
       })
       .catch((err) => setError(err.toString()))
@@ -83,6 +84,7 @@ export default function NewPost({ user: { username, image } }: Props) {
         <input
           className="hidden"
           name="input"
+          data-testid="input-upload"
           id="input-upload"
           type="file"
           accept="image/*"
@@ -111,7 +113,7 @@ export default function NewPost({ user: { username, image } }: Props) {
             <div className="relative w-full aspect-square">
               <Image
                 className="object-cover"
-                src={URL.createObjectURL(file)}
+                src={URL.createObjectURL?.(file) || '/'}
                 alt="local file"
                 fill
                 sizes="650px"
